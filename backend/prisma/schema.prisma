@@ -1,0 +1,400 @@
+// Prisma схема для интернет-магазина цветов
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum CustomerStatus {
+  NEW // 0% скидка
+  REGULAR // 5% скидка
+  LOYAL // 10% скидка
+  VIP // 15% скидка
+}
+
+enum DeliveryType {
+  DELIVERY // Доставка в Варна
+  DELIVERY_BULGARIA // Доставка по всей Болгарии
+  PICKUP // Самовывоз в Варна
+}
+
+enum OrderSource {
+  WEBSITE // Сайт
+  STORE // Магазин
+  INSTAGRAM // Инстаграм
+  FACEBOOK // Фейсбук
+}
+
+enum OrderType {
+  SALE // Текущая продажа
+  PREORDER // Предварительный заказ
+}
+
+enum CategoryType {
+  FLOWERS
+  PACKAGING
+  BOUQUETS
+}
+
+enum PromoType {
+  SINGLE_USE // Одноразовый
+  PERMANENT // Постоянный
+  DATE_RANGE // С датами от/до
+}
+
+enum DiscountType {
+  PERCENTAGE // Процент
+  FIXED // Фиксированная сумма
+}
+
+// Пользователи (клиенты)
+model User {
+  id                   Int            @id @default(autoincrement())
+  email                String         @unique
+  passwordHash         String         @map("password_hash")
+  firstName            String?        @map("first_name")
+  lastName             String?        @map("last_name")
+  phone                String?
+  birthday             DateTime?
+  customerStatus       CustomerStatus @default(NEW) @map("customer_status")
+  totalOrders          Int            @default(0) @map("total_orders")
+  totalSpent           Decimal        @default(0) @map("total_spent") @db.Decimal(10, 2)
+  lastOrderDate        DateTime?      @map("last_order_date")
+  emailVerified        Boolean        @default(false) @map("email_verified")
+  verificationToken    String?        @map("verification_token")
+  resetPasswordToken   String?        @map("reset_password_token")
+  resetPasswordExpires DateTime?      @map("reset_password_expires")
+  googleId             String?        @unique @map("google_id")
+  facebookId           String?        @unique @map("facebook_id")
+  createdAt            DateTime       @default(now()) @map("created_at")
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+
+  orders      Order[]
+  addresses   Address[]
+  promoUsages PromoUsage[]
+
+  @@index([email])
+  @@index([phone])
+  @@map("users")
+}
+
+// Адреса пользователей
+model Address {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  name      String // "Дома", "На работе"
+  address   String
+  city      String   @default("София")
+  phone     String
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("addresses")
+}
+
+// Категории и подкатегории
+model Category {
+  id          Int          @id @default(autoincrement())
+  name        String
+  slug        String       @unique
+  parentId    Int?         @map("parent_id")
+  type        CategoryType
+  description String?
+  order       Int          @default(0)
+  isActive    Boolean      @default(true) @map("is_active")
+  isEditable  Boolean      @default(true) @map("is_editable")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  parent       Category?             @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children     Category[]            @relation("CategoryHierarchy")
+  flowers      Flower[]
+  packaging    Packaging[]
+  bouquets     Bouquet[]
+  translations CategoryTranslation[]
+
+  @@map("categories")
+}
+
+// Переводы категорий
+model CategoryTranslation {
+  id          Int     @id @default(autoincrement())
+  categoryId  Int     @map("category_id")
+  lang        String // 'bg', 'ru'
+  name        String
+  description String?
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, lang])
+  @@map("category_translations")
+}
+
+// Цветы (поштучно)
+model Flower {
+  id            Int      @id @default(autoincrement())
+  sku           String   @unique
+  categoryId    Int      @map("category_id")
+  priceCost     Decimal  @map("price_cost") @db.Decimal(10, 2)
+  markup        Decimal  @db.Decimal(5, 2) // множитель (1.5, 2.0, и т.д.)
+  price         Decimal  @db.Decimal(10, 2) // вычисляемая цена продажи
+  images        String[] // массив путей к файлам
+  isActive      Boolean  @default(true) @map("is_active")
+  isFeatured    Boolean  @default(false) @map("is_featured") // Популярный товар
+  featuredOrder Int?     @map("featured_order") // Порядок в разделе популярных
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  category       Category            @relation(fields: [categoryId], references: [id])
+  translations   FlowerTranslation[]
+  bouquetFlowers BouquetFlower[]
+
+  @@map("flowers")
+}
+
+// Переводы цветов
+model FlowerTranslation {
+  id          Int     @id @default(autoincrement())
+  flowerId    Int     @map("flower_id")
+  lang        String
+  name        String
+  description String?
+
+  flower Flower @relation(fields: [flowerId], references: [id], onDelete: Cascade)
+
+  @@unique([flowerId, lang])
+  @@map("flower_translations")
+}
+
+// Цвета упаковки
+model PackagingColor {
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  hexCode String? @map("hex_code")
+  order   Int     @default(0)
+
+  packaging Packaging[]
+
+  @@map("packaging_colors")
+}
+
+// Упаковочные материалы
+model Packaging {
+  id              Int      @id @default(autoincrement())
+  sku             String   @unique
+  categoryId      Int      @map("category_id")
+  colorId         Int?     @map("color_id")
+  isTransparent   Boolean  @default(false) @map("is_transparent")
+  hasInscriptions Boolean  @default(false) @map("has_inscriptions") // С надписями
+  unit            String // 'piece' или 'meter'
+  pricePerUnit    Decimal  @map("price_per_unit") @db.Decimal(10, 2)
+  images          String[]
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  category         Category               @relation(fields: [categoryId], references: [id])
+  color            PackagingColor?        @relation(fields: [colorId], references: [id])
+  translations     PackagingTranslation[]
+  bouquetMaterials BouquetMaterial[]
+
+  @@map("packaging")
+}
+
+// Переводы упаковки
+model PackagingTranslation {
+  id          Int     @id @default(autoincrement())
+  packagingId Int     @map("packaging_id")
+  lang        String
+  name        String
+  description String?
+
+  packaging Packaging @relation(fields: [packagingId], references: [id], onDelete: Cascade)
+
+  @@unique([packagingId, lang])
+  @@map("packaging_translations")
+}
+
+// Букеты
+model Bouquet {
+  id              Int      @id @default(autoincrement())
+  sku             String   @unique
+  categoryId      Int      @map("category_id")
+  priceBase       Decimal  @map("price_base") @db.Decimal(10, 2) // базовая цена (сумма компонентов)
+  extraCharge     Decimal  @default(0) @map("extra_charge") @db.Decimal(10, 2) // наценка за работу
+  discountPercent Int      @default(0) @map("discount_percent") // 0, 5, 10, 15
+  price           Decimal  @db.Decimal(10, 2) // финальная цена
+  priceOld        Decimal? @map("price_old") @db.Decimal(10, 2) // старая цена (если скидка)
+  size            String? // S, M, L, XL (информационно)
+  images          String[] // массив путей к файлам (до 10)
+  isActive        Boolean  @default(true) @map("is_active")
+  isFeatured      Boolean  @default(false) @map("is_featured") // Популярный товар
+  featuredOrder   Int?     @map("featured_order") // Порядок в разделе популярных
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  category     Category             @relation(fields: [categoryId], references: [id])
+  translations BouquetTranslation[]
+  flowers      BouquetFlower[]
+  materials    BouquetMaterial[]
+
+  @@map("bouquets")
+}
+
+// Переводы букетов
+model BouquetTranslation {
+  id          Int     @id @default(autoincrement())
+  bouquetId   Int     @map("bouquet_id")
+  lang        String
+  name        String
+  description String?
+
+  bouquet Bouquet @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
+
+  @@unique([bouquetId, lang])
+  @@map("bouquet_translations")
+}
+
+// Связь букетов с цветами (состав)
+model BouquetFlower {
+  id        Int @id @default(autoincrement())
+  bouquetId Int @map("bouquet_id")
+  flowerId  Int @map("flower_id")
+  quantity  Int
+
+  bouquet Bouquet @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
+  flower  Flower  @relation(fields: [flowerId], references: [id])
+
+  @@map("bouquet_flowers")
+}
+
+// Связь букетов с упаковкой (состав)
+model BouquetMaterial {
+  id          Int @id @default(autoincrement())
+  bouquetId   Int @map("bouquet_id")
+  packagingId Int @map("packaging_id")
+  quantity    Int
+
+  bouquet   Bouquet   @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
+  packaging Packaging @relation(fields: [packagingId], references: [id])
+
+  @@map("bouquet_materials")
+}
+
+// Заказы
+model Order {
+  id              Int          @id @default(autoincrement())
+  orderNumber     String       @unique @map("order_number") // человеко-читаемый номер
+  userId          Int?         @map("user_id") // Зарегистрированный пользователь (опционально)
+  customerName    String       @map("customer_name")
+  customerPhone   String       @map("customer_phone")
+  customerEmail   String?      @map("customer_email")
+  deliveryType    DeliveryType @map("delivery_type") // DELIVERY или PICKUP
+  deliveryAddress String?      @map("delivery_address")
+  deliveryDate    DateTime     @map("delivery_date") // Дата доставки/самовывоза
+  deliveryTime    String       @map("delivery_time") // "10:00-12:00"
+  orderType       OrderType    @default(PREORDER) @map("order_type") // Тип заказа
+  source          OrderSource  @default(WEBSITE) // Источник заказа
+  sellerName      String?      @map("seller_name") // Имя продавца
+  comment         String?
+  paymentMethod   String       @map("payment_method") // 'cash', 'card_online'
+  paymentStatus   String       @default("pending") @map("payment_status") // 'pending', 'paid', 'failed'
+  totalAmount     Decimal      @map("total_amount") @db.Decimal(10, 2)
+  deliveryPrice   Decimal      @default(0) @map("delivery_price") @db.Decimal(10, 2)
+  promoId         Int?         @map("promo_id")
+  promoDiscount   Decimal      @default(0) @map("promo_discount") @db.Decimal(10, 2)
+  statusDiscount  Decimal      @default(0) @map("status_discount") @db.Decimal(10, 2) // Скидка по статусу
+  status          String       @default("new") // 'new', 'processing', 'ready', 'delivered', 'cancelled'
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  user        User?        @relation(fields: [userId], references: [id])
+  promo       Promo?       @relation(fields: [promoId], references: [id])
+  items       OrderItem[]
+  promoUsages PromoUsage[]
+
+  @@index([userId])
+  @@index([deliveryDate])
+  @@map("orders")
+}
+
+// Позиции заказа
+model OrderItem {
+  id                  Int     @id @default(autoincrement())
+  orderId             Int     @map("order_id")
+  itemType            String  @map("item_type") // 'bouquet', 'flower', 'packaging'
+  itemId              Int?    @map("item_id") // Nullable, т.к. может ссылаться на разные таблицы
+  productNameSnapshot String  @map("product_name_snapshot")
+  quantity            Int
+  priceSnapshot       Decimal @map("price_snapshot") @db.Decimal(10, 2)
+  options             Json? // доп опции (цвет упаковки, открытка и т.д.)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  // Убрали прямую связь с Bouquet, так как itemId может указывать на разные таблицы
+
+  @@map("order_items")
+}
+
+// Промокоды
+model Promo {
+  id             Int          @id @default(autoincrement())
+  code           String       @unique
+  type           PromoType
+  discountType   DiscountType @map("discount_type")
+  discountValue  Decimal      @map("discount_value") @db.Decimal(10, 2)
+  minOrderAmount Decimal?     @map("min_order_amount") @db.Decimal(10, 2)
+  maxDiscount    Decimal?     @map("max_discount") @db.Decimal(10, 2)
+  validFrom      DateTime?    @map("valid_from")
+  validTo        DateTime?    @map("valid_to")
+  maxUses        Int?         @map("max_uses")
+  usedCount      Int          @default(0) @map("used_count")
+  maxUsesPerUser Int          @default(1) @map("max_uses_per_user")
+  isActive       Boolean      @default(true) @map("is_active")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  createdBy      Int          @map("created_by")
+
+  creator AdminUser    @relation(fields: [createdBy], references: [id])
+  orders  Order[]
+  usages  PromoUsage[]
+
+  @@index([code])
+  @@map("promos")
+}
+
+// Использования промокодов
+model PromoUsage {
+  id       Int      @id @default(autoincrement())
+  promoId  Int      @map("promo_id")
+  orderId  Int      @map("order_id")
+  userId   Int?     @map("user_id")
+  discount Decimal  @db.Decimal(10, 2)
+  usedAt   DateTime @default(now()) @map("used_at")
+
+  promo Promo @relation(fields: [promoId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
+  user  User? @relation(fields: [userId], references: [id])
+
+  @@map("promo_usages")
+}
+
+// Администраторы
+model AdminUser {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  email        String   @unique
+  role         String   @default("admin")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  promos Promo[]
+
+  @@map("admin_users")
+}
