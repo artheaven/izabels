@@ -343,7 +343,7 @@ export default function NewOrderPage() {
             {/* КОНТАКТНІ ДАНІ */}
             <div className="bg-white p-6 rounded-lg shadow">
               <h2 className="font-bold text-xl mb-4">
-                Контактные данные {orderType === 'sale' && <span className="text-sm font-normal text-gray-500">(необязательно)</span>}
+                Контактные данные
               </h2>
               <div className="space-y-4">
                 <div>

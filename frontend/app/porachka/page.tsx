@@ -26,7 +26,9 @@ export default function CheckoutPage() {
     customerPhone: '',
     customerEmail: '',
     deliveryAddress: '',
+    deliveryTime: '',
     comment: '',
+    isSelfPickup: false,
   });
 
   const [loading, setLoading] = useState(false);

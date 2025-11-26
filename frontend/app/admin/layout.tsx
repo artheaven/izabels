@@ -15,8 +15,16 @@ import {
   Menu,
   X,
   ShoppingCart,
-  Archive
+  Archive,
+  LucideIcon
 } from 'lucide-react';
+
+type MenuItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  subItems?: { href: string; label: string; }[];
+};
 
 export default function AdminLayout({
   children,
@@ -53,7 +61,7 @@ export default function AdminLayout({
     return children;
   }
 
-  const menuGroups = [
+  const menuGroups: { title: string; items: MenuItem[] }[] = [
     {
       title: 'Торговля',
       items: [

@@ -109,7 +109,7 @@ export default function AdminBouquetsPage() {
       ) : viewMode === 'table' ? (
         // Табличный вид с группировкой по категориям
         <div className="space-y-6">
-          {Object.entries(groupedBouquets).map(([categoryName, categoryBouquets]) => (
+          {(Object.entries(groupedBouquets) as [string, any[]][]).map(([categoryName, categoryBouquets]) => (
             <div key={categoryName} className="bg-white rounded-lg shadow overflow-hidden">
               <div className="bg-gray-100 px-6 py-3 border-b">
                 <h2 className="text-lg font-semibold">{categoryName}</h2>
