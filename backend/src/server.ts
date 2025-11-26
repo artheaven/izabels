@@ -15,7 +15,8 @@ import authRoutes from './routes/auth';
 import addressRoutes from './routes/addresses';
 
 const app: Application = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // Middleware
 app.use(helmet());
@@ -79,10 +80,11 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Запуск сервера
-app.listen(PORT, () => {
-  console.log(`🚀 Сервер запущен на порту ${PORT}`);
+app.listen(Number(PORT), HOST, () => {
+  console.log(`🚀 Сервер запущен на ${HOST}:${PORT}`);
   console.log(`📝 Окружение: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 API доступен по адресу: http://localhost:${PORT}`);
+  console.log(`🔗 CORS разрешен для: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
 });
 
 export default app;

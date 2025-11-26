@@ -8,9 +8,21 @@ const nextConfig = {
         port: '5001',
         pathname: '/uploads/**',
       },
+      // Production Railway domain (обновите после деплоя)
+      {
+        protocol: 'https',
+        hostname: '*.railway.app',
+        pathname: '/uploads/**',
+      },
+      // Если используете Cloudinary для uploads
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
     ],
   },
-  // Для production нужно добавить домен Railway/Vercel
+  // Включаем standalone для оптимизации деплоя
+  output: 'standalone',
 }
 
 module.exports = nextConfig
