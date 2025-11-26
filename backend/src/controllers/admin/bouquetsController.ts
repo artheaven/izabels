@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { AuthRequest } from '../../middleware/auth';
 import { generateSKU } from '../../utils/skuGenerator';
 import { processImages } from '../../middleware/imageProcessor';
@@ -281,7 +281,7 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
       const materialsData = materials ? JSON.parse(materials) : [];
 
       if (flowersData.length > 0 || materialsData.length > 0) {
-        priceBase = await calculateBouquetPrice(flowersData, materialsData);
+        priceBase = new Prisma.Decimal(await calculateBouquetPrice(flowersData, materialsData));
 
         // Удаляем старые связи
         await prisma.bouquetFlower.deleteMany({

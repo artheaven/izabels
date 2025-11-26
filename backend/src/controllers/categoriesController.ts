@@ -28,7 +28,7 @@ export const categoriesController = {
 
   async create(req: Request, res: Response) {
     try {
-      const { name, slug, parentId, description, nameBg, descriptionBg } = req.body;
+      const { name, slug, parentId, description, nameBg, descriptionBg, type } = req.body;
 
       if (!name || !slug || !nameBg) {
         return res.status(400).json({ error: 'Обязательные поля: name, slug, nameBg' });
@@ -38,6 +38,7 @@ export const categoriesController = {
         data: {
           name,
           slug,
+          type: type || 'BOUQUETS', // По умолчанию BOUQUETS
           parentId: parentId ? parseInt(parentId) : null,
           description,
           translations: {

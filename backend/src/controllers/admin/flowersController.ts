@@ -153,7 +153,7 @@ export const updateFlower = async (req: AuthRequest, res: Response) => {
     // Вычисляем новую цену если изменились параметры
     let price = flower.price;
     if (priceCost && markup) {
-      price = parseFloat(priceCost) * parseFloat(markup);
+      price = new Prisma.Decimal(parseFloat(priceCost) * parseFloat(markup));
     }
 
     // Обрабатываем новые изображения

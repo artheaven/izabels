@@ -32,7 +32,7 @@ router.get('/', authenticateUser, async (req, res) => {
 router.post('/', authenticateUser, async (req, res) => {
   try {
     const userId = (req as any).userId;
-    const { name, address, city, postalCode, isDefault } = req.body;
+    const { name, address, city, phone, isDefault } = req.body;
 
     // Если новый адрес должен быть по умолчанию, сбросить флаг у остальных
     if (isDefault) {
@@ -48,7 +48,7 @@ router.post('/', authenticateUser, async (req, res) => {
         name,
         address,
         city: city || 'София',
-        postalCode,
+        phone: phone || '',
         isDefault: isDefault || false,
       },
     });
@@ -68,7 +68,7 @@ router.put('/:id', authenticateUser, async (req, res) => {
   try {
     const userId = (req as any).userId;
     const addressId = parseInt(req.params.id);
-    const { name, address, city, postalCode, isDefault } = req.body;
+    const { name, address, city, phone, isDefault } = req.body;
 
     // Проверить, что адрес принадлежит пользователю
     const existingAddress = await prisma.address.findFirst({
@@ -93,7 +93,7 @@ router.put('/:id', authenticateUser, async (req, res) => {
         name,
         address,
         city,
-        postalCode,
+        phone,
         isDefault,
       },
     });

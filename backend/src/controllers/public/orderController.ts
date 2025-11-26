@@ -202,7 +202,7 @@ export const createOrder = async (req: Request, res: Response) => {
         customerEmail: customerEmail || null,
         deliveryAddress: deliveryAddress || null,
         deliveryType: deliveryType as any,
-        deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
+        deliveryDate: deliveryDate || null,
         deliveryTime: deliveryTime || null,
         comment: comment || null,
         paymentMethod: paymentMethod || 'cash',
@@ -249,7 +249,8 @@ export const createOrder = async (req: Request, res: Response) => {
         data: {
           promoId,
           orderId: order.id,
-          userId: userId || null
+          userId: userId || null,
+          discount: promoDiscount,
         }
       });
     }

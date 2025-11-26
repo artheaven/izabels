@@ -27,17 +27,7 @@ export const ordersController = {
       const orders = await prisma.order.findMany({
         where,
         include: {
-          items: {
-            include: {
-              bouquet: {
-                include: {
-                  translations: {
-                    where: { lang: 'bg' },
-                  },
-                },
-              },
-            },
-          },
+          items: true,
         },
         orderBy: { createdAt: 'desc' },
       });
@@ -56,17 +46,7 @@ export const ordersController = {
       const order = await prisma.order.findUnique({
         where: { id: parseInt(id) },
         include: {
-          items: {
-            include: {
-              bouquet: {
-                include: {
-                  translations: {
-                    where: { lang: 'bg' },
-                  },
-                },
-              },
-            },
-          },
+          items: true,
         },
       });
 
