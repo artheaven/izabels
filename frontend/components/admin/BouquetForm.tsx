@@ -511,7 +511,7 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Цветы</h3>
           
-          {selectedFlowers.map((item, index) => {
+              {selectedFlowers.map((item, index) => {
             const flower = flowers.find(f => f.id === item.flowerId);
             const itemPrice = flower ? parseFloat(flower.price) * item.quantity : 0;
 
@@ -563,7 +563,7 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
                 </button>
               </div>
             );
-          })}
+              })}
 
               <button
                 type="button"
@@ -576,7 +576,7 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
 
               <h3 className="font-semibold text-lg pt-4">Упаковка</h3>
           
-          {selectedMaterials.map((item, index) => {
+              {selectedMaterials.map((item, index) => {
             const pack = packaging.find(p => p.id === item.packagingId);
             const itemPrice = pack ? parseFloat(pack.pricePerUnit) * item.quantity : 0;
 
@@ -629,7 +629,7 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
                 </button>
               </div>
             );
-          })}
+              })}
 
               <button
                 type="button"
