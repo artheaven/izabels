@@ -9,6 +9,7 @@ export interface CartItem {
   image?: string;
   options?: {
     size?: string;
+    sizeVariantId?: number;
     packagingColor?: string;
     addCard?: boolean;
   };
