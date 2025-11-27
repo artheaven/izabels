@@ -91,7 +91,7 @@ export default function AdminSalesPage() {
           </button>
           <button
             onClick={() => router.push("/admin/sales/new")}
-            className="mt-6 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition flex items-center space-x-2"
+            className="mt-6 bg-[#02240D] text-white px-6 py-2 rounded-lg hover:bg-[#02240D]/90 transition flex items-center space-x-2"
           >
             <span>+</span>
             <span>Новая продажа</span>

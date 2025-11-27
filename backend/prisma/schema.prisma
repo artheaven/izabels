@@ -222,30 +222,81 @@ model PackagingTranslation {
   @@map("packaging_translations")
 }
 
+// Размеры букетов (справочник)
+model BouquetSize {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique // "S", "M", "L", "XL"
+  order     Int      @default(0)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  variants     BouquetSizeVariant[]
+  translations BouquetSizeTranslation[]
+
+  @@map("bouquet_sizes")
+}
+
+// Переводы размеров букетов
+model BouquetSizeTranslation {
+  id      Int    @id @default(autoincrement())
+  sizeId  Int    @map("size_id")
+  lang    String
+  name    String
+  description String?
+
+  size BouquetSize @relation(fields: [sizeId], references: [id], onDelete: Cascade)
+
+  @@unique([sizeId, lang])
+  @@map("bouquet_size_translations")
+}
+
 // Букеты
 model Bouquet {
   id              Int      @id @default(autoincrement())
   sku             String   @unique
   categoryId      Int      @map("category_id")
-  priceBase       Decimal  @map("price_base") @db.Decimal(10, 2) // базовая цена (сумма компонентов)
-  extraCharge     Decimal  @default(0) @map("extra_charge") @db.Decimal(10, 2) // наценка за работу
-  discountPercent Int      @default(0) @map("discount_percent") // 0, 5, 10, 15
-  price           Decimal  @db.Decimal(10, 2) // финальная цена
-  priceOld        Decimal? @map("price_old") @db.Decimal(10, 2) // старая цена (если скидка)
-  size            String? // S, M, L, XL (информационно)
-  images          String[] // массив путей к файлам (до 10)
-  isActive        Boolean  @default(true) @map("is_active")
-  isFeatured      Boolean  @default(false) @map("is_featured") // Популярный товар
-  featuredOrder   Int?     @map("featured_order") // Порядок в разделе популярных
-  createdAt       DateTime @default(now()) @map("created_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  // Старые поля (будут удалены после миграции)
+  priceBase       Decimal?  @map("price_base") @db.Decimal(10, 2)
+  extraCharge     Decimal?  @default(0) @map("extra_charge") @db.Decimal(10, 2)
+  discountPercent Int?      @default(0) @map("discount_percent")
+  price           Decimal?  @db.Decimal(10, 2)
+  priceOld        Decimal?  @map("price_old") @db.Decimal(10, 2)
+  size            String?
+  // Новые поля
+  images        String[] // массив путей к файлам (до 10)
+  isActive      Boolean  @default(true) @map("is_active")
+  isFeatured    Boolean  @default(false) @map("is_featured") // Популярный товар
+  featuredOrder Int?     @map("featured_order") // Порядок в разделе популярных
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   category     Category             @relation(fields: [categoryId], references: [id])
   translations BouquetTranslation[]
   flowers      BouquetFlower[]
   materials    BouquetMaterial[]
+  sizeVariants BouquetSizeVariant[] // Доступные размеры для этого букета
 
   @@map("bouquets")
+}
+
+// Варианты размеров для каждого букета
+model BouquetSizeVariant {
+  id              Int     @id @default(autoincrement())
+  bouquetId       Int     @map("bouquet_id")
+  sizeId          Int     @map("size_id")
+  flowerCount     Int     @map("flower_count") // Количество цветов для этого размера
+  priceBase       Decimal @map("price_base") @db.Decimal(10, 2) // базовая цена (сумма компонентов)
+  extraCharge     Decimal @default(0) @map("extra_charge") @db.Decimal(10, 2) // наценка за работу
+  discountPercent Int     @default(0) @map("discount_percent") // 0, 5, 10, 15
+  price           Decimal @db.Decimal(10, 2) // финальная цена
+  priceOld        Decimal? @map("price_old") @db.Decimal(10, 2) // старая цена (если скидка)
+
+  bouquet Bouquet      @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
+  size    BouquetSize  @relation(fields: [sizeId], references: [id])
+
+  @@unique([bouquetId, sizeId])
+  @@map("bouquet_size_variants")
 }
 
 // Переводы букетов

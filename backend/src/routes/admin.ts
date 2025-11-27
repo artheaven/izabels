@@ -8,6 +8,7 @@ import * as flowersController from '../controllers/admin/flowersController';
 import * as packagingController from '../controllers/admin/packagingController';
 import * as packagingColorsController from '../controllers/admin/packagingColorsController';
 import * as bouquetsController from '../controllers/admin/bouquetsController';
+import * as bouquetSizesController from '../controllers/admin/bouquetSizesController';
 import * as ordersController from '../controllers/admin/ordersController';
 import * as categoriesController from '../controllers/admin/categoriesController';
 import * as customersController from '../controllers/admin/customersController';
@@ -54,6 +55,13 @@ router.patch('/bouquets/:id/toggle', bouquetsController.toggleBouquet);
 router.patch('/bouquets/:id/featured', bouquetsController.toggleFeatured);
 router.delete('/bouquets/:id', bouquetsController.deleteBouquet);
 router.delete('/bouquets/:id/image/:imagePath', bouquetsController.deleteBouquetImage);
+
+// === Размеры букетов (Bouquet Sizes) ===
+router.get('/bouquet-sizes', bouquetSizesController.getBouquetSizes);
+router.get('/bouquet-sizes/:id', bouquetSizesController.getBouquetSize);
+router.post('/bouquet-sizes', bouquetSizesController.createBouquetSize);
+router.put('/bouquet-sizes/:id', bouquetSizesController.updateBouquetSize);
+router.delete('/bouquet-sizes/:id', bouquetSizesController.deleteBouquetSize);
 
 // === Заказы (Orders) ===
 router.get('/orders', ordersController.getAllOrders);

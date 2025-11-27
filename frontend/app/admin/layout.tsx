@@ -158,7 +158,7 @@ export default function AdminLayout({
                           onClick={() => setMenuOpen(false)}
                           className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
                             isActive
-                              ? 'bg-primary text-white'
+                              ? 'bg-[#02240D] text-white'
                               : 'text-gray-700 hover:bg-gray-100'
                           }`}
                         >

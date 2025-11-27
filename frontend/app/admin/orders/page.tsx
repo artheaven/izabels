@@ -57,7 +57,7 @@ export default function AdminOrdersPage() {
         <h1 className="text-3xl font-bold">Заказы</h1>
         <button
           onClick={() => router.push('/admin/orders/new')}
-          className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition flex items-center space-x-2"
+          className="bg-[#02240D] text-white px-6 py-2 rounded-lg hover:bg-[#02240D]/90 transition flex items-center space-x-2"
         >
           <span>+</span>
           <span>Новый заказ</span>

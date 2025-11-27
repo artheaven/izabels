@@ -315,9 +315,9 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
     }
 
     // Пересчитываем цену
-    const charge = extraCharge !== undefined ? parseFloat(extraCharge) : parseFloat(bouquet.extraCharge.toString());
-    const priceBeforeDiscount = parseFloat(priceBase.toString()) + charge;
-    const discount = discountPercent !== undefined ? parseInt(discountPercent) : bouquet.discountPercent;
+    const charge = extraCharge !== undefined ? parseFloat(extraCharge) : (bouquet.extraCharge ? parseFloat(bouquet.extraCharge.toString()) : 0);
+    const priceBeforeDiscount = parseFloat((priceBase || new Prisma.Decimal(0)).toString()) + charge;
+    const discount = discountPercent !== undefined ? parseInt(discountPercent) : (bouquet.discountPercent || 0);
     const price = priceBeforeDiscount * (1 - discount / 100);
     const priceOld = discount > 0 ? priceBeforeDiscount : null;
 

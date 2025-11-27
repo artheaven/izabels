@@ -250,7 +250,7 @@ export default function NewOrderPage() {
                           <button
                             type="button"
                             onClick={() => handleAddItem(product)}
-                            className="bg-primary text-white px-3 py-1 rounded hover:bg-primary/90"
+                            className="bg-[#02240D] text-white px-3 py-1 rounded hover:bg-[#02240D]/90"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
@@ -507,7 +507,7 @@ export default function NewOrderPage() {
               <button
                 type="submit"
                 disabled={loading || items.length === 0}
-                className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary/90 disabled:opacity-50"
+                className="w-full bg-[#02240D] text-white py-3 rounded-lg font-bold hover:bg-[#02240D]/90 disabled:opacity-50"
               >
                 {loading ? 'Создание...' : 'Создать заказ'}
               </button>

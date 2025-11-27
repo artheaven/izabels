@@ -61,7 +61,7 @@ export default function AdminFlowersPage() {
         <h1 className="text-3xl font-bold">Управление цветами</h1>
         <Link
           href="/admin/flowers/new"
-          className="flex items-center space-x-2 bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
+          className="flex items-center space-x-2 bg-[#02240D] text-white px-4 py-2 rounded hover:bg-[#02240D]/90"
         >
           <Plus className="w-5 h-5" />
           <span>Добавить цветок</span>

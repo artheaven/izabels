@@ -118,7 +118,7 @@ export default function ProductsPage() {
         <h1 className="text-3xl font-bold">Товары</h1>
         <button
           onClick={() => setShowCategorySelector(true)}
-          className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 flex items-center space-x-2"
+          className="bg-[#02240D] text-white px-6 py-2 rounded-lg hover:bg-[#02240D]/90 flex items-center space-x-2"
         >
           <Plus className="w-5 h-5" />
           <span>Добавить товар</span>
@@ -185,7 +185,7 @@ export default function ProductsPage() {
       <div className="mb-6">
         <div className="flex items-center space-x-2 overflow-x-auto pb-2">
           <button
-            className="px-6 py-2 rounded-lg font-medium bg-primary text-white"
+            className="px-6 py-2 rounded-lg font-medium bg-[#02240D] text-white"
           >
             Все ({bouquets.length})
           </button>
@@ -199,7 +199,7 @@ export default function ProductsPage() {
                 onClick={() => setActiveCategory(cat.id)}
                 className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
                   activeCategory === cat.id
-                    ? 'bg-primary text-white'
+                    ? 'bg-[#02240D] text-white'
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 }`}
               >

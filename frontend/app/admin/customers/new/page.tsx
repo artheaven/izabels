@@ -164,7 +164,7 @@ export default function NewCustomerPage() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-primary text-white py-2 rounded hover:bg-primary/90 disabled:opacity-50"
+              className="flex-1 bg-[#02240D] text-white py-2 rounded hover:bg-[#02240D]/90 disabled:opacity-50"
             >
               {loading ? 'Создание...' : 'Создать клиента'}
             </button>

@@ -158,6 +158,69 @@ async function main() {
 
   console.log('✅ Цвета упаковки созданы');
 
+  // Создаем размеры букетов
+  const sizeS = await prisma.bouquetSize.upsert({
+    where: { name: 'S' },
+    update: {},
+    create: {
+      name: 'S',
+      order: 1,
+      translations: {
+        create: [
+          { lang: 'bg', name: 'Малък', description: 'Малък размер букет' },
+          { lang: 'ru', name: 'Маленький', description: 'Маленький размер букета' },
+        ],
+      },
+    },
+  });
+
+  const sizeM = await prisma.bouquetSize.upsert({
+    where: { name: 'M' },
+    update: {},
+    create: {
+      name: 'M',
+      order: 2,
+      translations: {
+        create: [
+          { lang: 'bg', name: 'Среден', description: 'Среден размер букет' },
+          { lang: 'ru', name: 'Средний', description: 'Средний размер букета' },
+        ],
+      },
+    },
+  });
+
+  const sizeL = await prisma.bouquetSize.upsert({
+    where: { name: 'L' },
+    update: {},
+    create: {
+      name: 'L',
+      order: 3,
+      translations: {
+        create: [
+          { lang: 'bg', name: 'Голям', description: 'Голям размер букет' },
+          { lang: 'ru', name: 'Большой', description: 'Большой размер букета' },
+        ],
+      },
+    },
+  });
+
+  const sizeXL = await prisma.bouquetSize.upsert({
+    where: { name: 'XL' },
+    update: {},
+    create: {
+      name: 'XL',
+      order: 4,
+      translations: {
+        create: [
+          { lang: 'bg', name: 'Много голям', description: 'Много голям размер букет' },
+          { lang: 'ru', name: 'Очень большой', description: 'Очень большой размер букета' },
+        ],
+      },
+    },
+  });
+
+  console.log('✅ Размеры букетов созданы');
+
   // Создаем тестовые цветы
   const redRose = await prisma.flower.upsert({
     where: { sku: 'FL-0001' },

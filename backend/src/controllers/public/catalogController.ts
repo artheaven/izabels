@@ -38,6 +38,35 @@ export const getCategories = async (req: Request, res: Response) => {
 };
 
 /**
+ * Получить размеры букетов
+ * GET /api/bouquet-sizes
+ */
+export const getBouquetSizes = async (req: Request, res: Response) => {
+  try {
+    const { lang = 'bg' } = req.query;
+
+    const sizes = await prisma.bouquetSize.findMany({
+      where: {
+        isActive: true,
+      },
+      include: {
+        translations: {
+          where: { lang: lang as string },
+        },
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    });
+
+    res.json({ sizes });
+  } catch (error) {
+    console.error('Ошибка при получении размеров букетов:', error);
+    res.status(500).json({ error: 'Ошибка при получении размеров букетов' });
+  }
+};
+
+/**
  * Получить товары для каталога с фильтрацией
  * GET /api/products
  */

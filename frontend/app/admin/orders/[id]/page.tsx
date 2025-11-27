@@ -132,7 +132,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
             </div>
             <button
               onClick={handleStatusUpdate}
-              className="w-full bg-primary text-white py-2 rounded hover:bg-primary/90"
+              className="w-full bg-[#02240D] text-white py-2 rounded hover:bg-[#02240D]/90"
             >
               Запази промените
             </button>

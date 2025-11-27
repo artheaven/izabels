@@ -184,7 +184,7 @@ export default function InventoryPage() {
           onClick={() => setActiveTab('flowers')}
           className={`px-6 py-3 rounded-lg font-medium transition ${
             activeTab === 'flowers'
-              ? 'bg-primary text-white'
+              ? 'bg-[#02240D] text-white'
               : 'bg-white text-gray-700 hover:bg-gray-100'
           }`}
         >
@@ -194,7 +194,7 @@ export default function InventoryPage() {
           onClick={() => setActiveTab('packaging')}
           className={`px-6 py-3 rounded-lg font-medium transition ${
             activeTab === 'packaging'
-              ? 'bg-primary text-white'
+              ? 'bg-[#02240D] text-white'
               : 'bg-white text-gray-700 hover:bg-gray-100'
           }`}
         >
@@ -211,7 +211,7 @@ export default function InventoryPage() {
                 onClick={() => setActiveFlowerCategory('all')}
                 className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
                   activeFlowerCategory === 'all'
-                    ? 'bg-primary text-white'
+                    ? 'bg-[#02240D] text-white'
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -227,7 +227,7 @@ export default function InventoryPage() {
                     onClick={() => setActiveFlowerCategory(cat.id)}
                     className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
                       activeFlowerCategory === cat.id
-                        ? 'bg-primary text-white'
+                        ? 'bg-[#02240D] text-white'
                         : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -238,7 +238,7 @@ export default function InventoryPage() {
             </div>
             <button
               onClick={() => router.push('/admin/flowers/new')}
-              className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 flex items-center space-x-2"
+              className="bg-[#02240D] text-white px-6 py-2 rounded-lg hover:bg-[#02240D]/90 flex items-center space-x-2"
             >
               <Plus className="w-5 h-5" />
               <span>Добавить</span>
@@ -324,7 +324,7 @@ export default function InventoryPage() {
                 onClick={() => setActivePackagingType('all')}
                 className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
                   activePackagingType === 'all'
-                    ? 'bg-primary text-white'
+                    ? 'bg-[#02240D] text-white'
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 }`}
               >
@@ -340,7 +340,7 @@ export default function InventoryPage() {
                     onClick={() => setActivePackagingType(type.id)}
                     className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
                       activePackagingType === type.id
-                        ? 'bg-primary text-white'
+                        ? 'bg-[#02240D] text-white'
                         : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -351,7 +351,7 @@ export default function InventoryPage() {
             </div>
             <button
               onClick={() => router.push('/admin/packaging/new')}
-              className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 flex items-center space-x-2"
+              className="bg-[#02240D] text-white px-6 py-2 rounded-lg hover:bg-[#02240D]/90 flex items-center space-x-2"
             >
               <Plus className="w-5 h-5" />
               <span>Добавить</span>

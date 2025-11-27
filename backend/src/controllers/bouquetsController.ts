@@ -311,15 +311,15 @@ export const bouquetsController = {
       const allImages = [...existingImagesList, ...newImages].slice(0, 10);
 
       // Если изменился состав, пересчитаем цену
-      let priceBase = currentBouquet.priceBase.toNumber();
+      let priceBase = currentBouquet.priceBase ? currentBouquet.priceBase.toNumber() : 0;
       if (flowers || materials) {
         const flowersList = flowers ? JSON.parse(flowers) : [];
         const materialsList = materials ? JSON.parse(materials) : [];
         priceBase = await calculateBasePrice(flowersList, materialsList);
       }
 
-      const extraChargeValue = extraCharge ? parseFloat(extraCharge) : currentBouquet.extraCharge.toNumber();
-      const discountPercentValue = discountPercent !== undefined ? parseInt(discountPercent) : currentBouquet.discountPercent;
+      const extraChargeValue = extraCharge ? parseFloat(extraCharge) : (currentBouquet.extraCharge ? currentBouquet.extraCharge.toNumber() : 0);
+      const discountPercentValue = discountPercent !== undefined ? parseInt(discountPercent) : (currentBouquet.discountPercent || 0);
 
       const priceBeforeDiscount = priceBase + extraChargeValue;
       const price = priceBeforeDiscount * (1 - discountPercentValue / 100);

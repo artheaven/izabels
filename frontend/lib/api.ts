@@ -51,6 +51,10 @@ export const publicApi = {
   getFeaturedProducts: (lang = 'bg') =>
     api.get('/api/products/featured', { params: { lang } }),
 
+  // Размеры букетов
+  getBouquetSizes: (lang = 'bg') =>
+    api.get('/api/bouquet-sizes', { params: { lang } }),
+
   // Создание заказа
   createOrder: (data: any) => 
     api.post('/api/orders', data),
@@ -208,6 +212,22 @@ export const adminApi = {
 
   toggleBouquetFeatured: (id: number, featuredOrder?: number) =>
     api.patch(`/api/admin/bouquets/${id}/featured`, { featuredOrder }),
+
+  // Размеры букетов
+  getBouquetSizes: () =>
+    api.get('/api/admin/bouquet-sizes'),
+
+  getBouquetSizeById: (id: number) =>
+    api.get(`/api/admin/bouquet-sizes/${id}`),
+
+  createBouquetSize: (data: any) =>
+    api.post('/api/admin/bouquet-sizes', data),
+
+  updateBouquetSize: (id: number, data: any) =>
+    api.put(`/api/admin/bouquet-sizes/${id}`, data),
+
+  deleteBouquetSize: (id: number) =>
+    api.delete(`/api/admin/bouquet-sizes/${id}`),
 
   // Заказы
   getOrders: (params?: { status?: string; from?: string; to?: string; orderType?: string }) =>

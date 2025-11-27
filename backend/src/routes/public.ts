@@ -12,6 +12,9 @@ const router = Router();
 // === Категории ===
 router.get('/categories', catalogController.getCategories);
 
+// === Размеры букетов ===
+router.get('/bouquet-sizes', catalogController.getBouquetSizes);
+
 // === Каталог товаров ===
 router.get('/products/featured', catalogController.getFeaturedProducts);
 router.get('/products', catalogController.getProducts);

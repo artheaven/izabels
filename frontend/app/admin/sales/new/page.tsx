@@ -408,7 +408,7 @@ export default function NewSalePage() {
               <button
                 type="submit"
                 disabled={loading || items.length === 0}
-                className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary/90 transition disabled:opacity-50"
+                className="w-full bg-[#02240D] text-white py-3 rounded-lg font-bold hover:bg-[#02240D]/90 transition disabled:opacity-50"
               >
                 {loading ? 'Создание...' : 'Создать продажу'}
               </button>
