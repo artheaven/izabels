@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getImageUrl, adminApi } from '@/lib/api';
-import { X, Plus } from 'lucide-react';
+import { getImageUrl } from '@/lib/api';
+import { X, Plus, Minus } from 'lucide-react';
 import CustomCategorySelect from './CustomCategorySelect';
 
 interface FlowerItem {
@@ -16,43 +16,30 @@ interface MaterialItem {
   quantity: number;
 }
 
-interface SizeVariant {
-  sizeId: number;
-  sizeName: string;
-  sizeLabel: string;
-  enabled: boolean;
-  flowerCount: number;
-  extraCharge: string;
-  discountPercent: string;
-}
-
 interface Props {
   bouquet?: any;
   categories: any[];
   flowers: any[];
   packaging: any[];
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: FormData) => Promise<void>;
   onCancel: () => void;
 }
 
-export default function BouquetFormNew({ bouquet, categories, flowers, packaging, onSubmit, onCancel }: Props) {
+export default function BouquetForm({ bouquet, categories, flowers, packaging, onSubmit, onCancel }: Props) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     categoryId: '',
+    size: 'M',
+    extraCharge: '0',
+    discountPercent: '0',
   });
 
-  const [sizes, setSizes] = useState<any[]>([]);
-  const [sizeVariants, setSizeVariants] = useState<SizeVariant[]>([]);
   const [selectedFlowers, setSelectedFlowers] = useState<FlowerItem[]>([]);
   const [selectedMaterials, setSelectedMaterials] = useState<MaterialItem[]>([]);
   const [images, setImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    loadSizes();
-  }, []);
 
   useEffect(() => {
     if (bouquet) {
@@ -61,6 +48,9 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
         name: translation?.name || '',
         description: translation?.description || '',
         categoryId: bouquet.categoryId?.toString() || '',
+        size: bouquet.size || 'M',
+        extraCharge: bouquet.extraCharge?.toString() || '0',
+        discountPercent: bouquet.discountPercent?.toString() || '0',
       });
 
       setSelectedFlowers(
@@ -78,81 +68,17 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
       );
 
       setExistingImages(bouquet.images || []);
-
-      // Загрузить варианты размеров букета
-      if (bouquet.sizeVariants) {
-        const variants = sizeVariants.map(sv => {
-          const existing = bouquet.sizeVariants.find((bsv: any) => bsv.sizeId === sv.sizeId);
-          if (existing) {
-            return {
-              ...sv,
-              enabled: true,
-              flowerCount: existing.flowerCount,
-              extraCharge: existing.extraCharge.toString(),
-              discountPercent: existing.discountPercent.toString(),
-            };
-          }
-          return sv;
-        });
-        setSizeVariants(variants);
-      }
     }
-  }, [bouquet, sizes]);
+  }, [bouquet]);
 
-  const loadSizes = async () => {
-    try {
-      const response = await adminApi.getBouquetSizes();
-      const loadedSizes = response.data.sizes;
-      setSizes(loadedSizes);
-
-      // Инициализировать варианты размеров
-      const initialVariants: SizeVariant[] = loadedSizes.map((size: any) => {
-        const bgTranslation = size.translations.find((t: any) => t.lang === 'bg');
-        return {
-          sizeId: size.id,
-          sizeName: size.name,
-          sizeLabel: bgTranslation?.name || size.name,
-          enabled: false,
-          flowerCount: 0,
-          extraCharge: '0',
-          discountPercent: '0',
-        };
-      });
-      setSizeVariants(initialVariants);
-    } catch (error) {
-      console.error('Error loading sizes:', error);
-    }
-  };
-
-  const toggleSizeVariant = (sizeId: number) => {
-    setSizeVariants(prev =>
-      prev.map(sv =>
-        sv.sizeId === sizeId ? { ...sv, enabled: !sv.enabled } : sv
-      )
-    );
-  };
-
-  const updateSizeVariant = (sizeId: number, field: keyof SizeVariant, value: any) => {
-    setSizeVariants(prev =>
-      prev.map(sv =>
-        sv.sizeId === sizeId ? { ...sv, [field]: value } : sv
-      )
-    );
-  };
-
-  // Расчет базовой цены для размера
-  const calculateBasePriceForSize = (flowerCount: number): number => {
-    if (selectedFlowers.length === 0 || flowerCount === 0) return 0;
-
-    const totalFlowersInComposition = selectedFlowers.reduce((sum, item) => sum + item.quantity, 0);
-    const multiplier = totalFlowersInComposition > 0 ? flowerCount / totalFlowersInComposition : 0;
-
+  // Расчет базовой цены
+  const calculateBasePrice = (): number => {
     let total = 0;
 
     selectedFlowers.forEach(({ flowerId, quantity }) => {
       const flower = flowers.find(f => f.id === flowerId);
       if (flower) {
-        total += parseFloat(flower.price) * quantity * multiplier;
+        total += parseFloat(flower.price) * quantity;
       }
     });
 
@@ -165,6 +91,12 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
 
     return total;
   };
+
+  const basePrice = calculateBasePrice();
+  const extraCharge = parseFloat(formData.extraCharge) || 0;
+  const priceBeforeDiscount = basePrice + extraCharge;
+  const discountPercent = parseFloat(formData.discountPercent) || 0;
+  const finalPrice = priceBeforeDiscount * (1 - discountPercent / 100);
 
   // Управление цветами
   const addFlower = () => {
@@ -227,12 +159,6 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
       return;
     }
 
-    const enabledVariants = sizeVariants.filter(sv => sv.enabled);
-    if (enabledVariants.length === 0) {
-      alert('Выберите хотя бы один размер букета');
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -240,18 +166,12 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
       data.append('name', formData.name);
       data.append('description', formData.description);
       data.append('categoryId', formData.categoryId);
+      data.append('size', formData.size);
+      data.append('extraCharge', formData.extraCharge);
+      data.append('discountPercent', formData.discountPercent);
       
       data.append('flowers', JSON.stringify(selectedFlowers));
       data.append('materials', JSON.stringify(selectedMaterials));
-
-      // Добавляем варианты размеров
-      const variantsData = enabledVariants.map(sv => ({
-        sizeId: sv.sizeId,
-        flowerCount: parseInt(sv.flowerCount.toString()) || 0,
-        extraCharge: parseFloat(sv.extraCharge) || 0,
-        discountPercent: parseInt(sv.discountPercent) || 0,
-      }));
-      data.append('sizeVariants', JSON.stringify(variantsData));
 
       images.forEach((file) => {
         data.append('images', file);
@@ -268,7 +188,7 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 max-w-6xl">
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 max-w-5xl">
       <div className="space-y-8">
         {/* Основная информация */}
         <div className="space-y-6">
@@ -301,123 +221,39 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
             />
           </div>
 
-          <CustomCategorySelect
-            value={formData.categoryId ? parseInt(formData.categoryId) : null}
-            onChange={(categoryId) => setFormData({ ...formData, categoryId: categoryId.toString() })}
-            categoryType="BOUQUETS"
-            label="Подкатегория"
-            required
-          />
-        </div>
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <CustomCategorySelect
+                value={formData.categoryId ? parseInt(formData.categoryId) : null}
+                onChange={(categoryId) => setFormData({ ...formData, categoryId: categoryId.toString() })}
+                categoryType="BOUQUETS"
+                label="Подкатегория"
+                required
+              />
+            </div>
 
-        {/* Размеры букета */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold border-b pb-2">Доступные размеры букета</h2>
-          <p className="text-sm text-gray-600">Выберите размеры, в которых будет доступен этот букет</p>
-
-          {sizeVariants.map((variant) => {
-            const basePrice = calculateBasePriceForSize(variant.flowerCount);
-            const extraCharge = parseFloat(variant.extraCharge) || 0;
-            const priceBeforeDiscount = basePrice + extraCharge;
-            const discountPercent = parseFloat(variant.discountPercent) || 0;
-            const finalPrice = priceBeforeDiscount * (1 - discountPercent / 100);
-
-            return (
-              <div
-                key={variant.sizeId}
-                className={`border rounded-lg p-4 ${variant.enabled ? 'border-[#02240D] bg-green-50' : 'border-gray-200'}`}
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Размер *
+              </label>
+              <select
+                value={formData.size}
+                onChange={(e) => setFormData({ ...formData, size: e.target.value })}
+                required
+                className="w-full border rounded px-4 py-2"
               >
-                <div className="flex items-start space-x-4">
-                  <input
-                    type="checkbox"
-                    checked={variant.enabled}
-                    onChange={() => toggleSizeVariant(variant.sizeId)}
-                    className="mt-1 w-5 h-5"
-                  />
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-3">
-                      <label className="text-lg font-bold cursor-pointer" onClick={() => toggleSizeVariant(variant.sizeId)}>
-                        {variant.sizeName} - {variant.sizeLabel}
-                      </label>
-                      {variant.enabled && (
-                        <div className="text-2xl font-bold text-[#02240D]">
-                          {finalPrice.toFixed(2)} лв
-                        </div>
-                      )}
-                    </div>
-
-                    {variant.enabled && (
-                      <div className="grid grid-cols-4 gap-4 mt-4">
-                        <div>
-                          <label className="block text-sm font-semibold mb-2">
-                            Количество цветов *
-                          </label>
-                          <input
-                            type="number"
-                            min="1"
-                            value={variant.flowerCount}
-                            onChange={(e) => updateSizeVariant(variant.sizeId, 'flowerCount', parseInt(e.target.value) || 0)}
-                            required
-                            className="w-full border rounded px-3 py-2"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold mb-2">
-                            Базовая цена
-                          </label>
-                          <input
-                            type="text"
-                            value={`${basePrice.toFixed(2)} лв`}
-                            disabled
-                            className="w-full border rounded px-3 py-2 bg-gray-100"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold mb-2">
-                            Наценка (лв)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={variant.extraCharge}
-                            onChange={(e) => updateSizeVariant(variant.sizeId, 'extraCharge', e.target.value)}
-                            className="w-full border rounded px-3 py-2"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-semibold mb-2">
-                            Скидка (%)
-                          </label>
-                          <select
-                            value={variant.discountPercent}
-                            onChange={(e) => updateSizeVariant(variant.sizeId, 'discountPercent', e.target.value)}
-                            className="w-full border rounded px-3 py-2"
-                          >
-                            <option value="0">Без скидки</option>
-                            <option value="5">5%</option>
-                            <option value="10">10%</option>
-                            <option value="15">15%</option>
-                            <option value="20">20%</option>
-                          </select>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                <option value="S">S (Маленький)</option>
+                <option value="M">M (Средний)</option>
+                <option value="L">L (Большой)</option>
+                <option value="XL">XL (Очень большой)</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Состав букета - Цветы */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold border-b pb-2">Базовый состав букета - Цветы</h2>
-          <p className="text-sm text-gray-600">Укажите состав для базового размера. Количество цветов будет масштабироваться для каждого размера.</p>
+          <h2 className="text-xl font-bold border-b pb-2">Состав букета - Цветы</h2>
           
           {selectedFlowers.map((item, index) => {
             const flower = flowers.find(f => f.id === item.flowerId);
@@ -459,7 +295,7 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
 
                 <div className="w-32 text-right">
                   <label className="block text-sm font-semibold mb-2">Сумма</label>
-                  <p className="text-lg font-bold text-[#02240D]">{itemPrice.toFixed(2)} лв</p>
+                  <p className="text-lg font-bold text-primary">{itemPrice.toFixed(2)} лв</p>
                 </div>
 
                 <button
@@ -528,7 +364,7 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
 
                 <div className="w-32 text-right">
                   <label className="block text-sm font-semibold mb-2">Сумма</label>
-                  <p className="text-lg font-bold text-[#02240D]">{itemPrice.toFixed(2)} лв</p>
+                  <p className="text-lg font-bold text-primary">{itemPrice.toFixed(2)} лв</p>
                 </div>
 
                 <button
@@ -550,6 +386,70 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
             <Plus className="w-5 h-5" />
             <span>Добавить материал</span>
           </button>
+        </div>
+
+        {/* Расчет цены */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-bold border-b pb-2">Ценообразование</h2>
+
+          <div className="grid grid-cols-3 gap-6">
+            <div className="bg-gray-50 p-4 rounded">
+              <p className="text-sm text-gray-600 mb-1">Базовая цена (состав):</p>
+              <p className="text-2xl font-bold">{basePrice.toFixed(2)} лв</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Наценка за работу (лв)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.extraCharge}
+                onChange={(e) => setFormData({ ...formData, extraCharge: e.target.value })}
+                className="w-full border rounded px-4 py-2"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Скидка (%)
+              </label>
+              <select
+                value={formData.discountPercent}
+                onChange={(e) => setFormData({ ...formData, discountPercent: e.target.value })}
+                className="w-full border rounded px-4 py-2"
+              >
+                <option value="0">Без скидки</option>
+                <option value="5">5%</option>
+                <option value="10">10%</option>
+                <option value="15">15%</option>
+                <option value="20">20%</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="bg-primary/10 p-6 rounded-lg">
+            <div className="space-y-2">
+              {discountPercent > 0 && (
+                <>
+                  <div className="flex justify-between text-lg">
+                    <span>Цена без скидки:</span>
+                    <span className="line-through text-gray-500">{priceBeforeDiscount.toFixed(2)} лв</span>
+                  </div>
+                  <div className="flex justify-between text-lg text-red-600">
+                    <span>Скидка -{discountPercent}%:</span>
+                    <span>-{(priceBeforeDiscount - finalPrice).toFixed(2)} лв</span>
+                  </div>
+                </>
+              )}
+              <div className="flex justify-between text-2xl font-bold text-primary border-t pt-2">
+                <span>Итоговая цена:</span>
+                <span>{finalPrice.toFixed(2)} лв</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Фотографии */}
@@ -616,7 +516,7 @@ export default function BouquetFormNew({ bouquet, categories, flowers, packaging
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-[#02240D] text-white py-3 rounded text-lg font-semibold hover:bg-[#02240D]/90 disabled:opacity-50"
+            className="flex-1 bg-primary text-white py-3 rounded text-lg font-semibold hover:bg-primary/90 disabled:opacity-50"
           >
             {loading ? 'Сохранение...' : 'Сохранить букет'}
           </button>

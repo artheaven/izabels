@@ -161,14 +161,27 @@ async function main() {
   // Создаем размеры букетов
   const sizeS = await prisma.bouquetSize.upsert({
     where: { name: 'S' },
-    update: {},
+    update: {
+      translations: {
+        updateMany: [
+          {
+            where: { lang: 'bg' },
+            data: { name: 'Компактен', description: 'Компактен размер букет' },
+          },
+          {
+            where: { lang: 'ru' },
+            data: { name: 'Компактный', description: 'Компактный размер букета' },
+          },
+        ],
+      },
+    },
     create: {
       name: 'S',
       order: 1,
       translations: {
         create: [
-          { lang: 'bg', name: 'Малък', description: 'Малък размер букет' },
-          { lang: 'ru', name: 'Маленький', description: 'Маленький размер букета' },
+          { lang: 'bg', name: 'Компактен', description: 'Компактен размер букет' },
+          { lang: 'ru', name: 'Компактный', description: 'Компактный размер букета' },
         ],
       },
     },
@@ -176,14 +189,27 @@ async function main() {
 
   const sizeM = await prisma.bouquetSize.upsert({
     where: { name: 'M' },
-    update: {},
+    update: {
+      translations: {
+        updateMany: [
+          {
+            where: { lang: 'bg' },
+            data: { name: 'Стандартен', description: 'Стандартен размер букет' },
+          },
+          {
+            where: { lang: 'ru' },
+            data: { name: 'Стандартный', description: 'Стандартный размер букета' },
+          },
+        ],
+      },
+    },
     create: {
       name: 'M',
       order: 2,
       translations: {
         create: [
-          { lang: 'bg', name: 'Среден', description: 'Среден размер букет' },
-          { lang: 'ru', name: 'Средний', description: 'Средний размер букета' },
+          { lang: 'bg', name: 'Стандартен', description: 'Стандартен размер букет' },
+          { lang: 'ru', name: 'Стандартный', description: 'Стандартный размер букета' },
         ],
       },
     },
@@ -191,7 +217,20 @@ async function main() {
 
   const sizeL = await prisma.bouquetSize.upsert({
     where: { name: 'L' },
-    update: {},
+    update: {
+      translations: {
+        updateMany: [
+          {
+            where: { lang: 'bg' },
+            data: { name: 'Голям', description: 'Голям размер букет' },
+          },
+          {
+            where: { lang: 'ru' },
+            data: { name: 'Большой', description: 'Большой размер букета' },
+          },
+        ],
+      },
+    },
     create: {
       name: 'L',
       order: 3,
@@ -206,14 +245,27 @@ async function main() {
 
   const sizeXL = await prisma.bouquetSize.upsert({
     where: { name: 'XL' },
-    update: {},
+    update: {
+      translations: {
+        updateMany: [
+          {
+            where: { lang: 'bg' },
+            data: { name: 'Луксозен', description: 'Луксозен размер букет' },
+          },
+          {
+            where: { lang: 'ru' },
+            data: { name: 'Роскошный', description: 'Роскошный размер букета' },
+          },
+        ],
+      },
+    },
     create: {
       name: 'XL',
       order: 4,
       translations: {
         create: [
-          { lang: 'bg', name: 'Много голям', description: 'Много голям размер букет' },
-          { lang: 'ru', name: 'Очень большой', description: 'Очень большой размер букета' },
+          { lang: 'bg', name: 'Луксозен', description: 'Луксозен размер букет' },
+          { lang: 'ru', name: 'Роскошный', description: 'Роскошный размер букета' },
         ],
       },
     },

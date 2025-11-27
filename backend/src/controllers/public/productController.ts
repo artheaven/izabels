@@ -42,6 +42,22 @@ export const getProductBySku = async (req: Request, res: Response) => {
             },
           },
         },
+        sizeVariants: {
+          include: {
+            size: {
+              include: {
+                translations: {
+                  where: { lang: lang as string },
+                },
+              },
+            },
+          },
+          orderBy: {
+            size: {
+              order: 'asc',
+            },
+          },
+        },
       },
     });
 

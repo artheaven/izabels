@@ -133,11 +133,37 @@ export const getProducts = async (req: Request, res: Response) => {
         translations: {
           where: { lang: lang as string },
         },
+        sizeVariants: {
+          include: {
+            size: {
+              include: {
+                translations: {
+                  where: { lang: lang as string },
+                },
+              },
+            },
+          },
+          orderBy: {
+            size: {
+              order: 'asc',
+            },
+          },
+        },
       },
       orderBy,
     });
 
-    res.json({ products: bouquets });
+    // Для каждого букета находим минимальную цену
+    const productsWithPrices = bouquets.map(bouquet => {
+      const prices = bouquet.sizeVariants.map((v: any) => parseFloat(v.price.toString()));
+      const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+      return {
+        ...bouquet,
+        price: minPrice, // Минимальная цена для отображения в каталоге
+      };
+    });
+
+    res.json({ products: productsWithPrices });
   } catch (error) {
     console.error('Ошибка при получении товаров:', error);
     res.status(500).json({ error: 'Ошибка при получении товаров' });
@@ -162,13 +188,39 @@ export const getFeaturedProducts = async (req: Request, res: Response) => {
         translations: {
           where: { lang: lang as string },
         },
+        sizeVariants: {
+          include: {
+            size: {
+              include: {
+                translations: {
+                  where: { lang: lang as string },
+                },
+              },
+            },
+          },
+          orderBy: {
+            size: {
+              order: 'asc',
+            },
+          },
+        },
       },
       orderBy: {
         featuredOrder: 'asc',
       },
     });
 
-    res.json({ products: featuredProducts });
+    // Для каждого букета находим минимальную цену
+    const productsWithPrices = featuredProducts.map(bouquet => {
+      const prices = bouquet.sizeVariants.map((v: any) => parseFloat(v.price.toString()));
+      const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+      return {
+        ...bouquet,
+        price: minPrice,
+      };
+    });
+
+    res.json({ products: productsWithPrices });
   } catch (error) {
     console.error('Ошибка при получении популярных товаров:', error);
     res.status(500).json({ error: 'Ошибка при получении популярных товаров' });
