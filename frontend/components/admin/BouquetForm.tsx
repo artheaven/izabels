@@ -55,27 +55,13 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
   }, []);
 
   useEffect(() => {
-    if (bouquet) {
+    if (bouquet && sizes.length > 0) {
       const translation = bouquet.translations?.find((t: any) => t.lang === 'bg');
       setFormData({
         name: translation?.name || '',
         description: translation?.description || '',
         categoryId: bouquet.categoryId?.toString() || '',
       });
-
-      setSelectedFlowers(
-        bouquet.flowers?.map((f: any) => ({
-          flowerId: f.flower.id,
-          quantity: f.quantity,
-        })) || []
-      );
-
-      setSelectedMaterials(
-        bouquet.materials?.map((m: any) => ({
-          packagingId: m.packaging.id,
-          quantity: m.quantity,
-        })) || []
-      );
 
       setExistingImages(bouquet.images || []);
 
@@ -87,14 +73,26 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
             return {
               ...sv,
               enabled: true,
-              flowerCount: existing.flowerCount,
               extraCharge: existing.extraCharge.toString(),
               discountPercent: existing.discountPercent.toString(),
+              flowers: bouquet.flowers?.filter((f: any) => f.sizeId === sv.sizeId).map((f: any) => ({
+                flowerId: f.flower.id,
+                quantity: f.quantity,
+              })) || [],
+              materials: bouquet.materials?.filter((m: any) => m.sizeId === sv.sizeId).map((m: any) => ({
+                packagingId: m.packaging.id,
+                quantity: m.quantity,
+              })) || [],
             };
           }
           return sv;
         });
         setSizeVariants(variants);
+        // Выбираем первый активный размер
+        const firstEnabled = variants.find(v => v.enabled);
+        if (firstEnabled) {
+          setSelectedSizeId(firstEnabled.sizeId);
+        }
       }
     }
   }, [bouquet, sizes]);
