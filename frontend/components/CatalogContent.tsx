@@ -159,10 +159,10 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
       {showFilters && (
         <>
           {/* Overlay */}
-          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setShowFilters(false)} />
+          <div className="fixed inset-0 bg-black/50 z-[100]" onClick={() => setShowFilters(false)} />
 
           {/* Sidebar */}
-          <div className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-background z-50 shadow-2xl overflow-y-auto">
+          <div className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-background z-[101] shadow-2xl overflow-y-auto">
             <div className="sticky top-0 bg-background border-b border-border px-6 py-4 flex items-center justify-between">
               <h2 className="text-2xl font-bold">Филтър и сортиране</h2>
               <button onClick={() => setShowFilters(false)} className="p-2 hover:bg-muted rounded-full transition">

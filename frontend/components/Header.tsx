@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ShoppingCart, Menu, X, Search, User } from "lucide-react"
+import { ShoppingCart, Menu, X } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useCartStore } from "@/lib/cart-store"
 import Image from "next/image"
@@ -24,13 +24,13 @@ export default function Header() {
 
   return (
     <>
-      <div className="bg-accent text-white text-center py-2 text-sm">Работим 7 дни в седмицата 10:00 - 19:00</div>
+      <div className="bg-gray-100 text-accent text-center py-1.5 text-xs">Работим 7 дни в седмицата 10:00 - 19:00</div>
 
-      <header className="absolute top-8 left-0 right-0 z-50 bg-white/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 bg-accent shadow-md">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
-            <Link href="/" className="block -my-6">
-              <div className="w-24 h-24 relative">
+          <div className="flex items-center justify-between h-16">
+            <Link href="/" className="flex items-center">
+              <div className="w-12 h-12 relative">
                 <Image src="/logo.svg" alt="Izabel's Flowers" fill className="object-contain" priority />
               </div>
             </Link>
@@ -41,7 +41,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-gray-700 hover:text-gray-900 transition text-sm font-medium tracking-wide"
+                  className="text-white hover:text-gray-200 transition text-sm font-medium tracking-wide"
                 >
                   {link.label}
                 </Link>
@@ -50,13 +50,7 @@ export default function Header() {
 
             {/* Icons */}
             <div className="flex items-center gap-4">
-              <button className="p-2 text-gray-700 hover:text-gray-900 transition">
-                <Search className="w-5 h-5" />
-              </button>
-              <button className="p-2 text-gray-700 hover:text-gray-900 transition">
-                <User className="w-5 h-5" />
-              </button>
-              <Link href="/koshnica" className="relative p-2 text-gray-700 hover:text-gray-900 transition">
+              <Link href="/koshnica" className="relative p-2 text-white hover:text-gray-200 transition">
                 <ShoppingCart className="w-5 h-5" />
                 {mounted && totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -66,7 +60,7 @@ export default function Header() {
               </Link>
 
               {/* Мобильное меню кнопка */}
-              <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              <button className="md:hidden p-2 text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                 {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
@@ -74,12 +68,12 @@ export default function Header() {
 
           {/* Мобильное меню */}
           {mobileMenuOpen && (
-            <nav className="md:hidden py-4 space-y-4 border-t border-gray-200">
+            <nav className="md:hidden py-4 space-y-4 border-t border-white/20">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="block text-gray-700 hover:text-gray-900 transition"
+                  className="block text-white hover:text-gray-200 transition"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {link.label}

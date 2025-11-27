@@ -305,27 +305,6 @@ export default function ProductContent({ product, translation }: Props) {
           <span>{formatPrice(product.price)}</span>
         </button>
 
-        {/* Other Variants */}
-        <div className="mb-8">
-          <p className="text-xs tracking-widest uppercase mb-4 text-gray-600">ДРУГИ ВАРИАНТИ</p>
-          <div className="flex gap-3">
-            {variants.map((variant, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`relative w-16 h-16 bg-gray-100 ${selectedImage === index ? "ring-2 ring-black" : ""}`}
-              >
-                <Image
-                  src={getImageUrl(variant.image) || "/placeholder.svg"}
-                  alt={variant.name}
-                  fill
-                  className="object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Expandable Sections */}
         <div className="border-t border-gray-200">
           {/* Discover Details */}
