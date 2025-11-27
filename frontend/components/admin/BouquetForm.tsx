@@ -101,7 +101,9 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
 
   const loadSizes = async () => {
     try {
+      console.log('Loading bouquet sizes...');
       const response = await adminApi.getBouquetSizes();
+      console.log('Sizes response:', response.data);
       const loadedSizes = response.data.sizes;
       setSizes(loadedSizes);
 
@@ -118,9 +120,11 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
           discountPercent: '0',
         };
       });
+      console.log('Initialized size variants:', initialVariants);
       setSizeVariants(initialVariants);
     } catch (error) {
       console.error('Error loading sizes:', error);
+      alert('Ошибка при загрузке размеров букетов: ' + error);
     }
   };
 
@@ -314,6 +318,13 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
         <div className="space-y-4">
           <h2 className="text-xl font-bold border-b pb-2">Доступные размеры букета</h2>
           <p className="text-sm text-gray-600">Выберите размеры, в которых будет доступен этот букет</p>
+          
+          {sizeVariants.length === 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-4">
+              <p className="text-yellow-800">⚠️ Размеры не загружены. Проверьте консоль браузера для ошибок.</p>
+              <p className="text-sm mt-2">Найдено размеров: {sizeVariants.length}</p>
+            </div>
+          )}
 
           {sizeVariants.map((variant) => {
             const basePrice = calculateBasePriceForSize(variant.flowerCount);
