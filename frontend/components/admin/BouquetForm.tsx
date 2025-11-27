@@ -35,7 +35,7 @@ interface Props {
   onCancel: () => void;
 }
 
-export default function BouquetFormNew({ bouquet, categories, flowers, packaging, onSubmit, onCancel }: Props) {
+export default function BouquetForm({ bouquet, categories, flowers, packaging, onSubmit, onCancel }: Props) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
