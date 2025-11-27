@@ -565,16 +565,6 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
             );
           })}
 
-          <button
-            type="button"
-            onClick={addFlower}
-            className="flex items-center space-x-2 text-blue-600 hover:text-blue-700"
-          >
-            <Plus className="w-5 h-5" />
-            <span>Добавить цветок</span>
-          </button>
-        </div>
-
               <button
                 type="button"
                 onClick={addFlower}
