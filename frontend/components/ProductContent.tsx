@@ -7,6 +7,22 @@ import { formatPrice } from "@/lib/utils"
 import { useCartStore } from "@/lib/cart-store"
 import { Minus, Plus, X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 
+interface SizeVariant {
+  id: number
+  sizeId: number
+  flowerCount: number
+  price: number
+  priceOld: number | null
+  discountPercent: number
+  size: {
+    name: string
+    translations: Array<{
+      name: string
+      description: string | null
+    }>
+  }
+}
+
 interface Product {
   id: number
   sku: string
@@ -15,6 +31,7 @@ interface Product {
   discountPercent: number
   size: string | null
   images: string[]
+  sizeVariants?: SizeVariant[]
 }
 
 interface Translation {
@@ -30,7 +47,10 @@ interface Props {
 export default function ProductContent({ product, translation }: Props) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
-  const [selectedSize, setSelectedSize] = useState("75ml")
+  // Выбираем первый доступный размер по умолчанию
+  const [selectedSizeVariantId, setSelectedSizeVariantId] = useState<number | null>(
+    product.sizeVariants && product.sizeVariants.length > 0 ? product.sizeVariants[0].id : null
+  )
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
   const [packagingColor, setPackagingColor] = useState("червен")
   const [addCard, setAddCard] = useState(false)
@@ -39,7 +59,11 @@ export default function ProductContent({ product, translation }: Props) {
 
   const addItem = useCartStore((state) => state.addItem)
 
-  const hasDiscount = product.discountPercent > 0
+  // Получаем выбранный вариант размера
+  const selectedVariant = product.sizeVariants?.find(v => v.id === selectedSizeVariantId) || null
+  const currentPrice = selectedVariant ? Number(selectedVariant.price) : Number(product.price)
+  const currentPriceOld = selectedVariant?.priceOld ? Number(selectedVariant.priceOld) : product.priceOld ? Number(product.priceOld) : null
+  const hasDiscount = selectedVariant ? selectedVariant.discountPercent > 0 : product.discountPercent > 0
 
   // Проверяем время для отображения доступности доставки
   useEffect(() => {
@@ -63,14 +87,20 @@ export default function ProductContent({ product, translation }: Props) {
   }, [])
 
   const handleAddToCart = () => {
+    if (!selectedVariant) {
+      alert("Моля, изберете размер!")
+      return
+    }
+
     addItem({
       sku: product.sku,
       name: translation.name,
-      price: Number.parseFloat(product.price.toString()),
+      price: currentPrice,
       quantity,
       image: product.images[0],
       options: {
-        size: selectedSize,
+        size: selectedVariant.size.translations[0]?.name || selectedVariant.size.name,
+        sizeVariantId: selectedVariant.id,
         packagingColor,
         addCard,
       },
@@ -216,7 +246,16 @@ export default function ProductContent({ product, translation }: Props) {
         <h1 className="text-4xl font-normal mb-4 font-serif">{translation.name}</h1>
 
         {/* Price */}
-        <p className="text-2xl mb-6">{formatPrice(product.price)}</p>
+        <div className="mb-6">
+          {hasDiscount && currentPriceOld ? (
+            <div className="flex items-center space-x-3">
+              <p className="text-2xl font-bold text-red-600">{formatPrice(currentPrice)}</p>
+              <p className="text-xl text-gray-400 line-through">{formatPrice(currentPriceOld)}</p>
+            </div>
+          ) : (
+            <p className="text-2xl">{formatPrice(currentPrice)}</p>
+          )}
+        </div>
 
         {/* Description */}
         {translation.description && (
@@ -224,26 +263,34 @@ export default function ProductContent({ product, translation }: Props) {
         )}
 
         {/* Size Options */}
-        <div className="mb-8">
-          <div className="flex gap-4">
-            <button
-              onClick={() => setSelectedSize("75ml")}
-              className={`text-sm pb-1 transition ${
-                selectedSize === "75ml" ? "border-b-2 border-black" : "text-gray-400"
-              }`}
-            >
-              Малък
-            </button>
-            <button
-              onClick={() => setSelectedSize("20ml")}
-              className={`text-sm pb-1 transition ${
-                selectedSize === "20ml" ? "border-b-2 border-black" : "text-gray-400"
-              }`}
-            >
-              Голям
-            </button>
+        {product.sizeVariants && product.sizeVariants.length > 0 && (
+          <div className="mb-8">
+            <label className="block text-sm font-semibold mb-3">Размер:</label>
+            <div className="flex gap-3 flex-wrap">
+              {product.sizeVariants.map((variant) => {
+                const sizeName = variant.size.translations[0]?.name || variant.size.name
+                const isSelected = selectedSizeVariantId === variant.id
+                return (
+                  <button
+                    key={variant.id}
+                    onClick={() => setSelectedSizeVariantId(variant.id)}
+                    className={`px-6 py-3 border-2 rounded-lg transition ${
+                      isSelected
+                        ? "border-[#02240D] bg-[#02240D] text-white"
+                        : "border-gray-300 hover:border-[#02240D]"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="font-semibold">{variant.size.name}</div>
+                      <div className="text-sm">{sizeName}</div>
+                      <div className="text-xs mt-1">{variant.flowerCount} цветя</div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Packaging Color */}
         <div className="mb-6">
