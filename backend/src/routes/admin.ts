@@ -20,6 +20,9 @@ const router = Router();
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
 
+// === Размеры букетов (публичный доступ для чтения) ===
+router.get('/bouquet-sizes', bouquetSizesController.getBouquetSizes);
+
 // === Защищенные роуты (требуют JWT) ===
 router.use(authenticateToken);
 
@@ -56,8 +59,7 @@ router.patch('/bouquets/:id/featured', bouquetsController.toggleFeatured);
 router.delete('/bouquets/:id', bouquetsController.deleteBouquet);
 router.delete('/bouquets/:id/image/:imagePath', bouquetsController.deleteBouquetImage);
 
-// === Размеры букетов (Bouquet Sizes) ===
-router.get('/bouquet-sizes', bouquetSizesController.getBouquetSizes);
+// === Размеры букетов (Bouquet Sizes) - управление ===
 router.get('/bouquet-sizes/:id', bouquetSizesController.getBouquetSize);
 router.post('/bouquet-sizes', bouquetSizesController.createBouquetSize);
 router.put('/bouquet-sizes/:id', bouquetSizesController.updateBouquetSize);
