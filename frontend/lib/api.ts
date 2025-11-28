@@ -320,6 +320,9 @@ export const adminApi = {
 export const getImageUrl = (path: string) => {
   if (!path) return '/placeholder.jpg';
   if (path.startsWith('http')) return path;
-  return `${API_URL}/uploads/${path}`;
+  // Временно используем placeholder пока не настроено облачное хранилище
+  // TODO: Интегрировать Cloudinary или S3
+  const fullUrl = `${API_URL}/uploads/${path}`;
+  return fullUrl;
 };
 

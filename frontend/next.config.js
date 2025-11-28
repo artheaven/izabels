@@ -8,10 +8,16 @@ const nextConfig = {
         port: '5001',
         pathname: '/uploads/**',
       },
-      // Production Railway domain (обновите после деплоя)
+      // Production Railway domain
       {
         protocol: 'https',
-        hostname: '*.railway.app',
+        hostname: 'izabels-production.up.railway.app',
+        pathname: '/uploads/**',
+      },
+      // Railway subdomains
+      {
+        protocol: 'https',
+        hostname: '**.railway.app',
         pathname: '/uploads/**',
       },
       // Если используете Cloudinary для uploads
