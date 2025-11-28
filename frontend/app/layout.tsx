@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="bg" className={`${playfair.variable} ${ibmPlexMono.variable}`}>
-      <body className="font-mono">{children}</body>
+      <body className="font-mono bg-background text-foreground">{children}</body>
     </html>
   )
 }

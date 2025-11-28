@@ -94,9 +94,9 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
   }
 
   return (
-    <div className="bg-background">
-      {/* Header section with title, description and generous spacing */}
-      <div className="container mx-auto px-4 pt-32 pb-8">
+    <div>
+      {/* Header section */}
+      <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-4">Цветя</h1>
         <p className="text-sm text-foreground/80 max-w-2xl leading-relaxed">
           Открийте нашата премиум колекция цветя, създадена да внесе красота и радост във всеки повод. От елегантни
