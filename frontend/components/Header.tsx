@@ -30,8 +30,8 @@ export default function Header() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center">
-              <div className="w-12 h-12 relative">
-                <Image src="/logo.svg" alt="Izabel's Flowers" fill className="object-contain" priority />
+              <div className="h-12 w-auto relative" style={{ width: '100px' }}>
+                <Image src="/Group 11.svg" alt="Izabel's Flowers" fill className="object-contain" priority />
               </div>
             </Link>
 
