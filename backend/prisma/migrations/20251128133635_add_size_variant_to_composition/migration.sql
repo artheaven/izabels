@@ -12,7 +12,7 @@ ALTER TABLE "bouquet_materials" ADD COLUMN     "size_variant_id" INTEGER;
 
 -- AlterTable
 ALTER TABLE "bouquet_size_variants" ADD COLUMN     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ADD COLUMN     "updated_at" TIMESTAMP(3) NOT NULL;
+ADD COLUMN     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
 -- AddForeignKey
 ALTER TABLE "bouquet_flowers" ADD CONSTRAINT "bouquet_flowers_size_variant_id_fkey" FOREIGN KEY ("size_variant_id") REFERENCES "bouquet_size_variants"("id") ON DELETE CASCADE ON UPDATE CASCADE;
