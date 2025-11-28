@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
+import logger from './utils/logger';
 
 // Загружаем переменные окружения
 dotenv.config();
@@ -38,7 +39,7 @@ app.use('/uploads', express.static(uploadsDir));
 
 // Логирование запросов
 app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  logger.info(`${req.method} ${req.path}`);
   next();
 });
 
@@ -72,7 +73,7 @@ app.use((req: Request, res: Response) => {
 
 // Глобальная обработка ошибок
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error:', err);
+  logger.error('Error:', err);
   res.status(500).json({
     error: 'Internal Server Error',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
@@ -81,10 +82,10 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 // Запуск сервера
 app.listen(Number(PORT), HOST, () => {
-  console.log(`🚀 Сервер запущен на ${HOST}:${PORT}`);
-  console.log(`📝 Окружение: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 API доступен по адресу: http://localhost:${PORT}`);
-  console.log(`🔗 CORS разрешен для: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  logger.info(`🚀 Сервер запущен на ${HOST}:${PORT}`);
+  logger.info(`📝 Окружение: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`🌐 API доступен по адресу: http://localhost:${PORT}`);
+  logger.info(`🔗 CORS разрешен для: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
 });
 
 export default app;

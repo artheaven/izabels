@@ -93,37 +93,27 @@ export const getProducts = async (req: Request, res: Response) => {
       };
     }
 
-    // Фильтр по цене
-    if (priceMin || priceMax) {
-      where.price = {};
-      if (priceMin) {
-        where.price.gte = parseFloat(priceMin as string);
-      }
-      if (priceMax) {
-        where.price.lte = parseFloat(priceMax as string);
-      }
-    }
-
-    // Фильтр по размеру
+    // Фильтр по размеру через sizeVariants
     if (size) {
-      where.size = size as string;
+      where.sizeVariants = {
+        some: {
+          size: {
+            name: size as string,
+          },
+        },
+      };
     }
 
-    // Сортировка
-    let orderBy: Prisma.BouquetOrderByWithRelationInput = { createdAt: 'desc' };
-    switch (sort) {
-      case 'price_asc':
-        orderBy = { price: 'asc' };
-        break;
-      case 'price_desc':
-        orderBy = { price: 'desc' };
-        break;
-      case 'name':
-        orderBy = { id: 'asc' }; // По имени через translation сложнее, упрощаем
-        break;
-      case 'discount':
-        orderBy = { discountPercent: 'desc' };
-        break;
+    // Фильтр по цене через sizeVariants (минимальная цена)
+    if (priceMin || priceMax) {
+      where.sizeVariants = {
+        ...where.sizeVariants,
+        some: {
+          ...(where.sizeVariants as any)?.some,
+          ...(priceMin && { price: { gte: parseFloat(priceMin as string) } }),
+          ...(priceMax && { price: { lte: parseFloat(priceMax as string) } }),
+        },
+      };
     }
 
     const bouquets = await prisma.bouquet.findMany({
@@ -150,18 +140,35 @@ export const getProducts = async (req: Request, res: Response) => {
           },
         },
       },
-      orderBy,
+      orderBy: { createdAt: 'desc' },
     });
 
     // Для каждого букета находим минимальную цену
-    const productsWithPrices = bouquets.map(bouquet => {
+    let productsWithPrices = bouquets.map(bouquet => {
       const prices = bouquet.sizeVariants.map((v: any) => parseFloat(v.price.toString()));
+      const discounts = bouquet.sizeVariants.map((v: any) => v.discountPercent || 0);
       const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+      const maxDiscount = discounts.length > 0 ? Math.max(...discounts) : 0;
       return {
         ...bouquet,
-        price: minPrice, // Минимальная цена для отображения в каталоге
+        price: minPrice,
+        discountPercent: maxDiscount,
       };
     });
+
+    // Сортировка в памяти (после фильтрации)
+    switch (sort) {
+      case 'price_asc':
+        productsWithPrices.sort((a, b) => a.price - b.price);
+        break;
+      case 'price_desc':
+        productsWithPrices.sort((a, b) => b.price - a.price);
+        break;
+      case 'discount':
+        productsWithPrices.sort((a, b) => b.discountPercent - a.discountPercent);
+        break;
+      // 'newest' - уже отсортировано по createdAt desc
+    }
 
     res.json({ products: productsWithPrices });
   } catch (error) {
