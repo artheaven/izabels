@@ -59,6 +59,16 @@ export default function ProductsPage() {
     }
   };
 
+  const handleToggleFeatured = async (id: number) => {
+    try {
+      await adminApi.toggleBouquetFeatured(id);
+      loadData();
+    } catch (error) {
+      console.error('Error toggling featured:', error);
+      alert('Ошибка переключения популярности');
+    }
+  };
+
   const handleDelete = async (id: number) => {
     if (!confirm('Вы уверены, что хотите удалить этот букет?')) return;
 
@@ -221,6 +231,7 @@ export default function ProductsPage() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Категория</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Цена</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Видимость</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Популярный</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Действия</th>
             </tr>
           </thead>
@@ -264,6 +275,20 @@ export default function ProductsPage() {
                     >
                       {bouquet.isActive ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                       <span>{bouquet.isActive ? 'Виден' : 'Скрыт'}</span>
+                    </button>
+                  </td>
+                  <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => handleToggleFeatured(bouquet.id)}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                        bouquet.isFeatured ? 'bg-yellow-500' : 'bg-gray-300'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                          bouquet.isFeatured ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                      />
                     </button>
                   </td>
                   <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
