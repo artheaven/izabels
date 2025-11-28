@@ -239,6 +239,49 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* About Our Store Section */}
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* Left - Content */}
+              <div className="space-y-6">
+                <h2 className="text-4xl md:text-5xl font-light leading-tight">
+                  Изкуството на флористиката в сърцето на София
+                </h2>
+                <div className="space-y-4 text-gray-600 leading-relaxed">
+                  <p>
+                    Izabel's не е просто магазин за цветя - това е място, където природата се среща с артистичност, а всяка
+                    композиция разказва своя история. От нашето основаване в София, ние се посвещаваме на създаването на
+                    букети и аранжименти, които надхвърлят очакванията и превръщат всеки момент в незабравим.
+                  </p>
+                  <p>
+                    Работим само с най-свежите цветя, внимателно подбрани от доверени доставчици. Нашият опитен екип от
+                    флористи подхожда към всяка поръчка с индивидуално внимание, създавайки уникални композиции, които
+                    отразяват вашата емоция и стил. Независимо дали търсите романтичен букет, впечатляваща корпоративна
+                    декорация или нещо специално за важен празник - ние превръщаме вашата визия в реалност.
+                  </p>
+                </div>
+                <Link
+                  href="/kontakti"
+                  className="inline-block text-base font-medium border-b-2 border-gray-900 pb-1 hover:border-accent transition"
+                >
+                  Свържете се с нас
+                </Link>
+              </div>
+
+              {/* Right - Image */}
+              <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
+                <Image
+                  src="/botanical-green-plants-blurred-natural-background.jpg"
+                  alt="Нашият магазин"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </>
