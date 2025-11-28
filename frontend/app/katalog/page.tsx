@@ -6,7 +6,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { formatPrice, formatPriceEUR } from '@/lib/utils';
 
-export const revalidate = 1800; // 30 minutes
+export const revalidate = 0; // Always fetch fresh data
+export const dynamic = 'force-dynamic';
 
 async function getCategories() {
   try {

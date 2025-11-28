@@ -5,7 +5,8 @@ import { publicApi, getImageUrl } from "@/lib/api"
 import Image from "next/image"
 import { formatPriceEUR } from "@/lib/utils"
 
-export const revalidate = 3600 // Revalidate every hour
+export const revalidate = 0 // Always fetch fresh data
+export const dynamic = 'force-dynamic'
 
 async function getFeaturedProducts() {
   try {
