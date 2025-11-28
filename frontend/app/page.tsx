@@ -56,7 +56,7 @@ export default async function HomePage() {
 
         {/* Best Sellers (Featured Products) */}
         {featuredProducts.length > 0 && (
-          <section className="py-20 bg-white">
+          <section className="py-20">
             <div className="container mx-auto px-4 max-w-7xl">
               {/* Section Header */}
               <div className="flex items-center justify-between mb-12">
@@ -200,7 +200,7 @@ export default async function HomePage() {
         </section>
 
         {/* Wedding Bouquets Section */}
-        <section className="py-20 bg-white">
+        <section className="py-20">
           <div className="container mx-auto px-4 max-w-7xl">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Left - Image */}
@@ -238,7 +238,7 @@ export default async function HomePage() {
         </section>
 
         {/* About Our Store Section */}
-        <section className="py-20 bg-gray-50">
+        <section className="py-20">
           <div className="container mx-auto px-4 max-w-7xl">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Left - Content */}
