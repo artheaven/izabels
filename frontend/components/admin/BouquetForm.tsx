@@ -66,7 +66,7 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
       setExistingImages(bouquet.images || []);
 
       // Загрузить варианты размеров букета
-      if (bouquet.sizeVariants) {
+      if (bouquet.sizeVariants && bouquet.sizeVariants.length > 0) {
         const variants = sizeVariants.map(sv => {
           const existing = bouquet.sizeVariants.find((bsv: any) => bsv.sizeId === sv.sizeId);
           if (existing) {
@@ -75,11 +75,11 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
               enabled: true,
               extraCharge: existing.extraCharge.toString(),
               discountPercent: existing.discountPercent.toString(),
-              flowers: bouquet.flowers?.filter((f: any) => f.sizeId === sv.sizeId).map((f: any) => ({
+              flowers: existing.flowers?.map((f: any) => ({
                 flowerId: f.flower.id,
                 quantity: f.quantity,
               })) || [],
-              materials: bouquet.materials?.filter((m: any) => m.sizeId === sv.sizeId).map((m: any) => ({
+              materials: existing.materials?.map((m: any) => ({
                 packagingId: m.packaging.id,
                 quantity: m.quantity,
               })) || [],

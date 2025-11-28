@@ -282,18 +282,22 @@ model Bouquet {
 
 // Варианты размеров для каждого букета
 model BouquetSizeVariant {
-  id              Int     @id @default(autoincrement())
-  bouquetId       Int     @map("bouquet_id")
-  sizeId          Int     @map("size_id")
-  flowerCount     Int     @map("flower_count") // Количество цветов для этого размера
-  priceBase       Decimal @map("price_base") @db.Decimal(10, 2) // базовая цена (сумма компонентов)
-  extraCharge     Decimal @default(0) @map("extra_charge") @db.Decimal(10, 2) // наценка за работу
-  discountPercent Int     @default(0) @map("discount_percent") // 0, 5, 10, 15
-  price           Decimal @db.Decimal(10, 2) // финальная цена
+  id              Int      @id @default(autoincrement())
+  bouquetId       Int      @map("bouquet_id")
+  sizeId          Int      @map("size_id")
+  flowerCount     Int      @map("flower_count") // Количество цветов для этого размера
+  priceBase       Decimal  @map("price_base") @db.Decimal(10, 2) // базовая цена (сумма компонентов)
+  extraCharge     Decimal  @default(0) @map("extra_charge") @db.Decimal(10, 2) // наценка за работу
+  discountPercent Int      @default(0) @map("discount_percent") // 0, 5, 10, 15
+  price           Decimal  @db.Decimal(10, 2) // финальная цена
   priceOld        Decimal? @map("price_old") @db.Decimal(10, 2) // старая цена (если скидка)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
-  bouquet Bouquet      @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
-  size    BouquetSize  @relation(fields: [sizeId], references: [id])
+  bouquet   Bouquet           @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
+  size      BouquetSize       @relation(fields: [sizeId], references: [id])
+  flowers   BouquetFlower[]   // Состав цветов для этого размера
+  materials BouquetMaterial[] // Состав упаковки для этого размера
 
   @@unique([bouquetId, sizeId])
   @@map("bouquet_size_variants")
@@ -315,26 +319,30 @@ model BouquetTranslation {
 
 // Связь букетов с цветами (состав)
 model BouquetFlower {
-  id        Int @id @default(autoincrement())
-  bouquetId Int @map("bouquet_id")
-  flowerId  Int @map("flower_id")
-  quantity  Int
+  id             Int  @id @default(autoincrement())
+  bouquetId      Int  @map("bouquet_id")
+  sizeVariantId  Int? @map("size_variant_id") // Привязка к конкретному размеру
+  flowerId       Int  @map("flower_id")
+  quantity       Int
 
-  bouquet Bouquet @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
-  flower  Flower  @relation(fields: [flowerId], references: [id])
+  bouquet      Bouquet             @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
+  sizeVariant  BouquetSizeVariant? @relation(fields: [sizeVariantId], references: [id], onDelete: Cascade)
+  flower       Flower              @relation(fields: [flowerId], references: [id])
 
   @@map("bouquet_flowers")
 }
 
 // Связь букетов с упаковкой (состав)
 model BouquetMaterial {
-  id          Int @id @default(autoincrement())
-  bouquetId   Int @map("bouquet_id")
-  packagingId Int @map("packaging_id")
-  quantity    Int
+  id            Int  @id @default(autoincrement())
+  bouquetId     Int  @map("bouquet_id")
+  sizeVariantId Int? @map("size_variant_id") // Привязка к конкретному размеру
+  packagingId   Int  @map("packaging_id")
+  quantity      Int
 
-  bouquet   Bouquet   @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
-  packaging Packaging @relation(fields: [packagingId], references: [id])
+  bouquet      Bouquet             @relation(fields: [bouquetId], references: [id], onDelete: Cascade)
+  sizeVariant  BouquetSizeVariant? @relation(fields: [sizeVariantId], references: [id], onDelete: Cascade)
+  packaging    Packaging           @relation(fields: [packagingId], references: [id])
 
   @@map("bouquet_materials")
 }

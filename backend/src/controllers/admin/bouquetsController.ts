@@ -51,34 +51,34 @@ export const getAllBouquets = async (req: AuthRequest, res: Response) => {
         translations: {
           where: { lang: 'bg' },
         },
-        flowers: {
-          include: {
-            flower: {
-              include: {
-                translations: {
-                  where: { lang: 'bg' },
-                },
-              },
-            },
-          },
-        },
-        materials: {
-          include: {
-            packaging: {
-              include: {
-                translations: {
-                  where: { lang: 'bg' },
-                },
-              },
-            },
-          },
-        },
         sizeVariants: {
           include: {
             size: {
               include: {
                 translations: {
                   where: { lang: 'bg' },
+                },
+              },
+            },
+            flowers: {
+              include: {
+                flower: {
+                  include: {
+                    translations: {
+                      where: { lang: 'bg' },
+                    },
+                  },
+                },
+              },
+            },
+            materials: {
+              include: {
+                packaging: {
+                  include: {
+                    translations: {
+                      where: { lang: 'bg' },
+                    },
+                  },
                 },
               },
             },
@@ -123,29 +123,29 @@ export const getBouquetById = async (req: AuthRequest, res: Response) => {
       include: {
         category: true,
         translations: true,
-        flowers: {
-          include: {
-            flower: {
-              include: {
-                translations: true,
-              },
-            },
-          },
-        },
-        materials: {
-          include: {
-            packaging: {
-              include: {
-                translations: true,
-              },
-            },
-          },
-        },
         sizeVariants: {
           include: {
             size: {
               include: {
                 translations: true,
+              },
+            },
+            flowers: {
+              include: {
+                flower: {
+                  include: {
+                    translations: true,
+                  },
+                },
+              },
+            },
+            materials: {
+              include: {
+                packaging: {
+                  include: {
+                    translations: true,
+                  },
+                },
               },
             },
           },
@@ -189,8 +189,6 @@ export const createBouquet = async (req: AuthRequest, res: Response) => {
     }
 
     // Парсим состав
-    const flowersData = flowers ? JSON.parse(flowers) : [];
-    const materialsData = materials ? JSON.parse(materials) : [];
     const sizeVariantsData = sizeVariants ? JSON.parse(sizeVariants) : [];
 
     if (sizeVariantsData.length === 0) {
@@ -219,22 +217,12 @@ export const createBouquet = async (req: AuthRequest, res: Response) => {
             description: description || '',
           },
         },
-        flowers: {
-          create: flowersData.map((item: any) => ({
-            flowerId: parseInt(item.flowerId),
-            quantity: parseInt(item.quantity),
-          })),
-        },
-        materials: {
-          create: materialsData.map((item: any) => ({
-            packagingId: parseInt(item.packagingId),
-            quantity: parseInt(item.quantity),
-          })),
-        },
         sizeVariants: {
           create: await Promise.all(sizeVariantsData.map(async (variant: any) => {
-            // Вычисляем базовую цену для размера
-            const priceBase = await calculateBouquetPrice(flowersData, materialsData);
+            // Вычисляем базовую цену для размера на основе его состава
+            const variantFlowers = variant.flowers || [];
+            const variantMaterials = variant.materials || [];
+            const priceBase = await calculateBouquetPrice(variantFlowers, variantMaterials);
             
             const extraCharge = parseFloat(variant.extraCharge) || 0;
             const discountPercent = parseInt(variant.discountPercent) || 0;
@@ -250,6 +238,18 @@ export const createBouquet = async (req: AuthRequest, res: Response) => {
               discountPercent,
               price,
               priceOld,
+              flowers: {
+                create: variantFlowers.map((item: any) => ({
+                  flowerId: parseInt(item.flowerId),
+                  quantity: parseInt(item.quantity),
+                })),
+              },
+              materials: {
+                create: variantMaterials.map((item: any) => ({
+                  packagingId: parseInt(item.packagingId),
+                  quantity: parseInt(item.quantity),
+                })),
+              },
             };
           })),
         },
@@ -305,16 +305,15 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
       categoryId,
       name,
       description,
-      size,
-      extraCharge,
-      discountPercent,
-      flowers,
-      materials,
+      sizeVariants,
       existingImages,
     } = req.body;
 
     const bouquet = await prisma.bouquet.findUnique({
       where: { id: parseInt(id) },
+      include: {
+        sizeVariants: true,
+      },
     });
 
     if (!bouquet) {
@@ -330,83 +329,83 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
     const existingImagesArray = existingImages ? JSON.parse(existingImages) : bouquet.images;
     const allImages = [...existingImagesArray, ...newImages];
 
-    // Если изменился состав, пересчитываем цену
-    let priceBase = bouquet.priceBase;
-    if (flowers || materials) {
-      const flowersData = flowers ? JSON.parse(flowers) : [];
-      const materialsData = materials ? JSON.parse(materials) : [];
+    // Парсим варианты размеров
+    const sizeVariantsData = sizeVariants ? JSON.parse(sizeVariants) : [];
 
-      if (flowersData.length > 0 || materialsData.length > 0) {
-        priceBase = new Prisma.Decimal(await calculateBouquetPrice(flowersData, materialsData));
-
-        // Удаляем старые связи
-        await prisma.bouquetFlower.deleteMany({
-          where: { bouquetId: parseInt(id) },
-        });
-        await prisma.bouquetMaterial.deleteMany({
-          where: { bouquetId: parseInt(id) },
-        });
-
-        // Создаем новые связи
-        if (flowersData.length > 0) {
-          await prisma.bouquetFlower.createMany({
-            data: flowersData.map((item: any) => ({
-              bouquetId: parseInt(id),
-              flowerId: parseInt(item.flowerId),
-              quantity: parseInt(item.quantity),
-            })),
-          });
-        }
-
-        if (materialsData.length > 0) {
-          await prisma.bouquetMaterial.createMany({
-            data: materialsData.map((item: any) => ({
-              bouquetId: parseInt(id),
-              packagingId: parseInt(item.packagingId),
-              quantity: parseInt(item.quantity),
-            })),
-          });
-        }
-      }
-    }
-
-    // Пересчитываем цену
-    const charge = extraCharge !== undefined ? parseFloat(extraCharge) : (bouquet.extraCharge ? parseFloat(bouquet.extraCharge.toString()) : 0);
-    const priceBeforeDiscount = parseFloat((priceBase || new Prisma.Decimal(0)).toString()) + charge;
-    const discount = discountPercent !== undefined ? parseInt(discountPercent) : (bouquet.discountPercent || 0);
-    const price = priceBeforeDiscount * (1 - discount / 100);
-    const priceOld = discount > 0 ? priceBeforeDiscount : null;
+    // Удаляем старые варианты размеров (каскадно удалятся flowers и materials)
+    await prisma.bouquetSizeVariant.deleteMany({
+      where: { bouquetId: parseInt(id) },
+    });
 
     // Обновляем букет
     const updatedBouquet = await prisma.bouquet.update({
       where: { id: parseInt(id) },
       data: {
         ...(categoryId && { categoryId: parseInt(categoryId) }),
-        ...(size !== undefined && { size }),
-        priceBase,
-        extraCharge: charge,
-        discountPercent: discount,
-        price,
-        priceOld,
         images: allImages,
+        sizeVariants: {
+          create: await Promise.all(sizeVariantsData.map(async (variant: any) => {
+            // Вычисляем базовую цену для размера на основе его состава
+            const variantFlowers = variant.flowers || [];
+            const variantMaterials = variant.materials || [];
+            const priceBase = await calculateBouquetPrice(variantFlowers, variantMaterials);
+            
+            const extraCharge = parseFloat(variant.extraCharge) || 0;
+            const discountPercent = parseInt(variant.discountPercent) || 0;
+            const priceBeforeDiscount = priceBase + extraCharge;
+            const price = priceBeforeDiscount * (1 - discountPercent / 100);
+            const priceOld = discountPercent > 0 ? priceBeforeDiscount : null;
+
+            return {
+              sizeId: parseInt(variant.sizeId),
+              flowerCount: parseInt(variant.flowerCount) || 0,
+              priceBase,
+              extraCharge,
+              discountPercent,
+              price,
+              priceOld,
+              flowers: {
+                create: variantFlowers.map((item: any) => ({
+                  flowerId: parseInt(item.flowerId),
+                  quantity: parseInt(item.quantity),
+                })),
+              },
+              materials: {
+                create: variantMaterials.map((item: any) => ({
+                  packagingId: parseInt(item.packagingId),
+                  quantity: parseInt(item.quantity),
+                })),
+              },
+            };
+          })),
+        },
       },
       include: {
         translations: true,
         category: true,
-        flowers: {
+        sizeVariants: {
           include: {
-            flower: {
+            size: {
               include: {
                 translations: { where: { lang: 'bg' } },
               },
             },
-          },
-        },
-        materials: {
-          include: {
-            packaging: {
+            flowers: {
               include: {
-                translations: { where: { lang: 'bg' } },
+                flower: {
+                  include: {
+                    translations: { where: { lang: 'bg' } },
+                  },
+                },
+              },
+            },
+            materials: {
+              include: {
+                packaging: {
+                  include: {
+                    translations: { where: { lang: 'bg' } },
+                  },
+                },
               },
             },
           },
