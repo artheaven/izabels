@@ -49,16 +49,12 @@ export default async function CatalogPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-8">Каталог</h1>
-
-          <CatalogContent 
-            initialCategories={categories} 
-            initialProducts={products}
-            featuredProducts={featuredProducts}
-          />
-        </div>
+      <main className="min-h-screen pt-8">
+        <CatalogContent 
+          initialCategories={categories} 
+          initialProducts={products}
+          featuredProducts={featuredProducts}
+        />
       </main>
       <Footer />
     </>

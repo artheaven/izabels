@@ -96,9 +96,9 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
   return (
     <div>
       {/* Header section */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-3xl font-bold mb-4">Цветя</h1>
-        <p className="text-sm text-foreground/80 max-w-2xl leading-relaxed">
+        <p className="text-sm text-foreground/80 max-w-2xl mx-auto leading-relaxed">
           Открийте нашата премиум колекция цветя, създадена да внесе красота и радост във всеки повод. От елегантни
           букети до модерни аранжировки, всяка творба е внимателно оформена с най-свежите сезонни цветя. Независимо дали
           празнувате рожден ден, годишнина, романтика или просто искате да осветите деня на някого, нашите цветя правят
