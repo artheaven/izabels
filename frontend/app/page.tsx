@@ -208,7 +208,7 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Left - Image */}
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                <Image src="/images/image.jpeg" alt="Сватбени букети" fill className="object-cover" />
+                <Image src="/svatba.png" alt="Сватбени букети" fill className="object-cover" />
               </div>
 
               {/* Right - Content */}
