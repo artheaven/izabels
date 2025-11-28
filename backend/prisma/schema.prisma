@@ -253,17 +253,9 @@ model BouquetSizeTranslation {
 
 // Букеты
 model Bouquet {
-  id              Int      @id @default(autoincrement())
-  sku             String   @unique
-  categoryId      Int      @map("category_id")
-  // Старые поля (будут удалены после миграции)
-  priceBase       Decimal?  @map("price_base") @db.Decimal(10, 2)
-  extraCharge     Decimal?  @default(0) @map("extra_charge") @db.Decimal(10, 2)
-  discountPercent Int?      @default(0) @map("discount_percent")
-  price           Decimal?  @db.Decimal(10, 2)
-  priceOld        Decimal?  @map("price_old") @db.Decimal(10, 2)
-  size            String?
-  // Новые поля
+  id            Int      @id @default(autoincrement())
+  sku           String   @unique
+  categoryId    Int      @map("category_id")
   images        String[] // массив путей к файлам (до 10)
   isActive      Boolean  @default(true) @map("is_active")
   isFeatured    Boolean  @default(false) @map("is_featured") // Популярный товар
