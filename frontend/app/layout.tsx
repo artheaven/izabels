@@ -1,12 +1,20 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Montserrat_Alternates } from "next/font/google"
+import { Playfair_Display, IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
 
-const montserrat = Montserrat_Alternates({
+const playfair = Playfair_Display({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-playfair",
+  display: "swap",
+})
+
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ["latin", "cyrillic"],
   weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-montserrat",
+  variable: "--font-ibm-plex-mono",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
@@ -21,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="bg" className={montserrat.variable}>
-      <body className="font-sans">{children}</body>
+    <html lang="bg" className={`${playfair.variable} ${ibmPlexMono.variable}`}>
+      <body className="font-mono">{children}</body>
     </html>
   )
 }
