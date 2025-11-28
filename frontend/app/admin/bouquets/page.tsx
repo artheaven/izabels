@@ -261,19 +261,37 @@ export default function AdminBouquetsPage() {
                     <p>Состав: {bouquet.flowers.length} цветов, {bouquet.materials.length} материалов</p>
                   </div>
 
-                  <div className="flex space-x-2 mb-3">
-                    <button
-                      onClick={() => handleToggle(bouquet.id)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        bouquet.isActive ? 'bg-green-600' : 'bg-gray-300'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          bouquet.isActive ? 'translate-x-6' : 'translate-x-1'
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-gray-600">Активен:</span>
+                      <button
+                        onClick={() => handleToggle(bouquet.id)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          bouquet.isActive ? 'bg-green-600' : 'bg-gray-300'
                         }`}
-                      />
-                    </button>
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            bouquet.isActive ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-gray-600">Популярный:</span>
+                      <button
+                        onClick={() => handleToggleFeatured(bouquet.id)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          bouquet.isFeatured ? 'bg-yellow-500' : 'bg-gray-300'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            bouquet.isFeatured ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex space-x-2">

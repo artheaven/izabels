@@ -7,21 +7,18 @@ import { formatPriceEUR } from "@/lib/utils"
 
 export const revalidate = 3600 // Revalidate every hour
 
-async function getSpecialOffers() {
+async function getFeaturedProducts() {
   try {
-    const response = await publicApi.getProducts({
-      sort: "discount",
-      lang: "bg",
-    })
-    return response.data.products.slice(0, 1) // Show only 1 product card
+    const response = await publicApi.getFeaturedProducts("bg")
+    return response.data.products.slice(0, 8) // Show up to 8 featured products
   } catch (error) {
-    console.error("Error fetching special offers:", error)
+    console.error("Error fetching featured products:", error)
     return []
   }
 }
 
 export default async function HomePage() {
-  const specialOffers = await getSpecialOffers()
+  const featuredProducts = await getFeaturedProducts()
 
   return (
     <>
@@ -57,15 +54,15 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Нови продукти (Special Offers) */}
-        {specialOffers.length > 0 && (
+        {/* Best Sellers (Featured Products) */}
+        {featuredProducts.length > 0 && (
           <section className="py-20 bg-white">
             <div className="container mx-auto px-4 max-w-7xl">
               {/* Section Header */}
               <div className="flex items-center justify-between mb-12">
-                <h2 className="text-sm font-medium tracking-[0.2em] uppercase">Нови продукти</h2>
+                <h2 className="text-sm font-medium tracking-[0.2em] uppercase">Best sellers</h2>
                 <p className="text-sm text-gray-500">
-                  {specialOffers.length} {specialOffers.length === 1 ? "Продукт" : "Продукти"}
+                  {featuredProducts.length} {featuredProducts.length === 1 ? "Продукт" : "Продукти"}
                 </p>
                 <Link href="/katalog" className="text-sm font-medium tracking-wide uppercase hover:underline">
                   Виж всички
@@ -74,7 +71,7 @@ export default async function HomePage() {
 
               {/* Product Grid - Smaller cards to fit 3+ per screen */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {specialOffers.map((product: any) => {
+                {featuredProducts.map((product: any) => {
                   const translation = product.translations[0]
                   const hasDiscount = product.discountPercent > 0
 
