@@ -269,6 +269,10 @@ model Bouquet {
   materials    BouquetMaterial[]
   sizeVariants BouquetSizeVariant[] // Доступные размеры для этого букета
 
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([isFeatured])
+  @@index([createdAt])
   @@map("bouquets")
 }
 
@@ -292,6 +296,9 @@ model BouquetSizeVariant {
   materials BouquetMaterial[] // Состав упаковки для этого размера
 
   @@unique([bouquetId, sizeId])
+  @@index([bouquetId])
+  @@index([sizeId])
+  @@index([price])
   @@map("bouquet_size_variants")
 }
 
@@ -321,6 +328,9 @@ model BouquetFlower {
   sizeVariant  BouquetSizeVariant? @relation(fields: [sizeVariantId], references: [id], onDelete: Cascade)
   flower       Flower              @relation(fields: [flowerId], references: [id])
 
+  @@index([bouquetId])
+  @@index([sizeVariantId])
+  @@index([flowerId])
   @@map("bouquet_flowers")
 }
 
@@ -336,6 +346,9 @@ model BouquetMaterial {
   sizeVariant  BouquetSizeVariant? @relation(fields: [sizeVariantId], references: [id], onDelete: Cascade)
   packaging    Packaging           @relation(fields: [packagingId], references: [id])
 
+  @@index([bouquetId])
+  @@index([sizeVariantId])
+  @@index([packagingId])
   @@map("bouquet_materials")
 }
 
