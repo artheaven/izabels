@@ -204,7 +204,7 @@ export const createBouquet = async (req: AuthRequest, res: Response) => {
       images = await processImages(req.files);
     }
 
-    // Создаем букет
+    // Создаем букет с sizeVariants
     const bouquet = await prisma.bouquet.create({
       data: {
         sku,
@@ -217,64 +217,65 @@ export const createBouquet = async (req: AuthRequest, res: Response) => {
             description: description || '',
           },
         },
-        sizeVariants: {
-          create: await Promise.all(sizeVariantsData.map(async (variant: any) => {
-            // Вычисляем базовую цену для размера на основе его состава
-            const variantFlowers = variant.flowers || [];
-            const variantMaterials = variant.materials || [];
-            const priceBase = await calculateBouquetPrice(variantFlowers, variantMaterials);
-            
-            const extraCharge = parseFloat(variant.extraCharge) || 0;
-            const discountPercent = parseInt(variant.discountPercent) || 0;
-            const priceBeforeDiscount = priceBase + extraCharge;
-            const price = priceBeforeDiscount * (1 - discountPercent / 100);
-            const priceOld = discountPercent > 0 ? priceBeforeDiscount : null;
-
-            return {
-              sizeId: parseInt(variant.sizeId),
-              flowerCount: parseInt(variant.flowerCount) || 0,
-              priceBase,
-              extraCharge,
-              discountPercent,
-              price,
-              priceOld,
-              flowers: {
-                create: variantFlowers.map((item: any) => ({
-                  flowerId: parseInt(item.flowerId),
-                  quantity: parseInt(item.quantity),
-                })),
-              },
-              materials: {
-                create: variantMaterials.map((item: any) => ({
-                  packagingId: parseInt(item.packagingId),
-                  quantity: parseInt(item.quantity),
-                })),
-              },
-            };
-          })),
-        },
       },
+    });
+
+    // Создаем варианты размеров с их составом
+    for (const variant of sizeVariantsData) {
+      const variantFlowers = variant.flowers || [];
+      const variantMaterials = variant.materials || [];
+      const priceBase = await calculateBouquetPrice(variantFlowers, variantMaterials);
+      
+      const extraCharge = parseFloat(variant.extraCharge) || 0;
+      const discountPercent = parseInt(variant.discountPercent) || 0;
+      const priceBeforeDiscount = priceBase + extraCharge;
+      const price = priceBeforeDiscount * (1 - discountPercent / 100);
+      const priceOld = discountPercent > 0 ? priceBeforeDiscount : null;
+
+      const sizeVariant = await prisma.bouquetSizeVariant.create({
+        data: {
+          bouquetId: bouquet.id,
+          sizeId: parseInt(variant.sizeId),
+          flowerCount: parseInt(variant.flowerCount) || 0,
+          priceBase,
+          extraCharge,
+          discountPercent,
+          price,
+          priceOld,
+        },
+      });
+
+      // Создаем flowers для этого варианта
+      if (variantFlowers.length > 0) {
+        await prisma.bouquetFlower.createMany({
+          data: variantFlowers.map((item: any) => ({
+            bouquetId: bouquet.id,
+            sizeVariantId: sizeVariant.id,
+            flowerId: parseInt(item.flowerId),
+            quantity: parseInt(item.quantity),
+          })),
+        });
+      }
+
+      // Создаем materials для этого варианта
+      if (variantMaterials.length > 0) {
+        await prisma.bouquetMaterial.createMany({
+          data: variantMaterials.map((item: any) => ({
+            bouquetId: bouquet.id,
+            sizeVariantId: sizeVariant.id,
+            packagingId: parseInt(item.packagingId),
+            quantity: parseInt(item.quantity),
+          })),
+        });
+      }
+    }
+
+    // Получаем полный букет с включениями
+    const createdBouquet = await prisma.bouquet.findUnique({
+      where: { id: bouquet.id },
       include: {
         translations: true,
         category: true,
-        flowers: {
-          include: {
-            flower: {
-              include: {
-                translations: { where: { lang: 'bg' } },
-              },
-            },
-          },
-        },
-        materials: {
-          include: {
-            packaging: {
-              include: {
-                translations: { where: { lang: 'bg' } },
-              },
-            },
-          },
-        },
         sizeVariants: {
           include: {
             size: {
@@ -282,12 +283,30 @@ export const createBouquet = async (req: AuthRequest, res: Response) => {
                 translations: { where: { lang: 'bg' } },
               },
             },
+            flowers: {
+              include: {
+                flower: {
+                  include: {
+                    translations: { where: { lang: 'bg' } },
+                  },
+                },
+              },
+            },
+            materials: {
+              include: {
+                packaging: {
+                  include: {
+                    translations: { where: { lang: 'bg' } },
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
 
-    res.status(201).json({ bouquet });
+    res.status(201).json({ bouquet: createdBouquet });
   } catch (error) {
     console.error('Ошибка при создании букета:', error);
     res.status(500).json({ error: 'Ошибка при создании букета' });
@@ -338,48 +357,67 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
     });
 
     // Обновляем букет
-    const updatedBouquet = await prisma.bouquet.update({
+    await prisma.bouquet.update({
       where: { id: parseInt(id) },
       data: {
         ...(categoryId && { categoryId: parseInt(categoryId) }),
         images: allImages,
-        sizeVariants: {
-          create: await Promise.all(sizeVariantsData.map(async (variant: any) => {
-            // Вычисляем базовую цену для размера на основе его состава
-            const variantFlowers = variant.flowers || [];
-            const variantMaterials = variant.materials || [];
-            const priceBase = await calculateBouquetPrice(variantFlowers, variantMaterials);
-            
-            const extraCharge = parseFloat(variant.extraCharge) || 0;
-            const discountPercent = parseInt(variant.discountPercent) || 0;
-            const priceBeforeDiscount = priceBase + extraCharge;
-            const price = priceBeforeDiscount * (1 - discountPercent / 100);
-            const priceOld = discountPercent > 0 ? priceBeforeDiscount : null;
-
-            return {
-              sizeId: parseInt(variant.sizeId),
-              flowerCount: parseInt(variant.flowerCount) || 0,
-              priceBase,
-              extraCharge,
-              discountPercent,
-              price,
-              priceOld,
-              flowers: {
-                create: variantFlowers.map((item: any) => ({
-                  flowerId: parseInt(item.flowerId),
-                  quantity: parseInt(item.quantity),
-                })),
-              },
-              materials: {
-                create: variantMaterials.map((item: any) => ({
-                  packagingId: parseInt(item.packagingId),
-                  quantity: parseInt(item.quantity),
-                })),
-              },
-            };
-          })),
-        },
       },
+    });
+
+    // Создаем новые варианты размеров с их составом
+    for (const variant of sizeVariantsData) {
+      const variantFlowers = variant.flowers || [];
+      const variantMaterials = variant.materials || [];
+      const priceBase = await calculateBouquetPrice(variantFlowers, variantMaterials);
+      
+      const extraCharge = parseFloat(variant.extraCharge) || 0;
+      const discountPercent = parseInt(variant.discountPercent) || 0;
+      const priceBeforeDiscount = priceBase + extraCharge;
+      const price = priceBeforeDiscount * (1 - discountPercent / 100);
+      const priceOld = discountPercent > 0 ? priceBeforeDiscount : null;
+
+      const sizeVariant = await prisma.bouquetSizeVariant.create({
+        data: {
+          bouquetId: parseInt(id),
+          sizeId: parseInt(variant.sizeId),
+          flowerCount: parseInt(variant.flowerCount) || 0,
+          priceBase,
+          extraCharge,
+          discountPercent,
+          price,
+          priceOld,
+        },
+      });
+
+      // Создаем flowers для этого варианта
+      if (variantFlowers.length > 0) {
+        await prisma.bouquetFlower.createMany({
+          data: variantFlowers.map((item: any) => ({
+            bouquetId: parseInt(id),
+            sizeVariantId: sizeVariant.id,
+            flowerId: parseInt(item.flowerId),
+            quantity: parseInt(item.quantity),
+          })),
+        });
+      }
+
+      // Создаем materials для этого варианта
+      if (variantMaterials.length > 0) {
+        await prisma.bouquetMaterial.createMany({
+          data: variantMaterials.map((item: any) => ({
+            bouquetId: parseInt(id),
+            sizeVariantId: sizeVariant.id,
+            packagingId: parseInt(item.packagingId),
+            quantity: parseInt(item.quantity),
+          })),
+        });
+      }
+    }
+
+    // Получаем обновленный букет
+    const updatedBouquet = await prisma.bouquet.findUnique({
+      where: { id: parseInt(id) },
       include: {
         translations: true,
         category: true,
