@@ -200,11 +200,7 @@ export default function AddressAutocomplete({
           placeholder={placeholder}
           required={required}
           disabled={disabled}
-          className={`w-full border rounded px-3 py-2 pr-10 ${
-            required && value && !/\d/.test(value) 
-              ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-              : 'border-gray-300 focus:border-primary focus:ring-primary'
-          }`}
+          className="w-full border border-gray-300 rounded px-3 py-2 pr-10 focus:border-primary focus:ring-primary"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
           {isLoading ? (
