@@ -78,6 +78,7 @@ export const createOrder = async (req: Request, res: Response) => {
       deliveryType = 'DELIVERY', // 'DELIVERY' или 'PICKUP'
       deliveryDate, // Дата доставки/самовывоза
       deliveryTime,
+      recipientPhone, // Телефон получателя
       comment,
       paymentMethod,
       items,
@@ -202,8 +203,9 @@ export const createOrder = async (req: Request, res: Response) => {
         customerEmail: customerEmail || null,
         deliveryAddress: deliveryAddress || null,
         deliveryType: deliveryType as any,
-        deliveryDate: deliveryDate || null,
+        deliveryDate: deliveryDate ? new Date(deliveryDate) : null,
         deliveryTime: deliveryTime || null,
+        recipientPhone: recipientPhone || null,
         comment: comment || null,
         paymentMethod: paymentMethod || 'cash',
         paymentStatus: 'pending',

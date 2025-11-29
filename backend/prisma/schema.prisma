@@ -362,8 +362,9 @@ model Order {
   customerEmail   String?      @map("customer_email")
   deliveryType    DeliveryType @map("delivery_type") // DELIVERY или PICKUP
   deliveryAddress String?      @map("delivery_address")
-  deliveryDate    DateTime     @map("delivery_date") // Дата доставки/самовывоза
-  deliveryTime    String       @map("delivery_time") // "10:00-12:00"
+  deliveryDate    DateTime?    @map("delivery_date") // Дата доставки/самовывоза (опционально)
+  deliveryTime    String?      @map("delivery_time") // "10:00-12:00" (опционально)
+  recipientPhone  String?      @map("recipient_phone") // Телефон получателя
   orderType       OrderType    @default(PREORDER) @map("order_type") // Тип заказа
   source          OrderSource  @default(WEBSITE) // Источник заказа
   sellerName      String?      @map("seller_name") // Имя продавца
