@@ -115,7 +115,6 @@ export default async function HomePage() {
                           )}
                           <span className="text-gray-900 font-medium">{formatPriceEUR(product.price)}</span>
                         </div>
-                        <p className="text-xs text-gray-500">75ml / 20ml</p>
                       </div>
                     </Link>
                   )

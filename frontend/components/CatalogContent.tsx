@@ -155,27 +155,27 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
         )}
       </div>
 
-      {/* Sidebar overlay and panel - unchanged */}
+      {/* Sidebar overlay and panel */}
       {showFilters && (
         <>
-          {/* Overlay */}
-          <div className="fixed inset-0 bg-black/50 z-[100]" onClick={() => setShowFilters(false)} />
+          {/* Overlay - начинается под хедером */}
+          <div className="fixed top-16 left-0 right-0 bottom-0 bg-black/50 z-40" onClick={() => setShowFilters(false)} />
 
-          {/* Sidebar */}
-          <div className="fixed top-0 right-0 bottom-0 w-full max-w-md bg-background z-[101] shadow-2xl overflow-y-auto">
-            <div className="sticky top-0 bg-background border-b border-border px-6 py-4 flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Филтър и сортиране</h2>
-              <button onClick={() => setShowFilters(false)} className="p-2 hover:bg-muted rounded-full transition">
-                <X className="w-6 h-6" />
+          {/* Sidebar - белый фон, под хедером */}
+          <div className="fixed top-16 right-0 bottom-0 w-full max-w-md bg-white z-40 shadow-2xl overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">Филтър и сортиране</h2>
+              <button onClick={() => setShowFilters(false)} className="p-2 hover:bg-gray-100 rounded-full transition">
+                <X className="w-6 h-6 text-gray-600" />
               </button>
             </div>
 
             <div className="p-6 space-y-6">
               {/* Price filter */}
-              <div className="border-b border-border pb-6">
-                <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4">
+              <div className="border-b border-gray-200 pb-6">
+                <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4 text-gray-900">
                   <span>Цена</span>
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
                 <div className="space-y-3">
                   <input
@@ -183,29 +183,29 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
                     placeholder="Минимална цена"
                     value={priceMin}
                     onChange={(e) => setPriceMin(e.target.value)}
-                    className="w-full border border-border rounded-md px-4 py-2.5 bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full border border-gray-300 rounded-md px-4 py-2.5 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent"
                   />
                   <input
                     type="number"
                     placeholder="Максимална цена"
                     value={priceMax}
                     onChange={(e) => setPriceMax(e.target.value)}
-                    className="w-full border border-border rounded-md px-4 py-2.5 bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full border border-gray-300 rounded-md px-4 py-2.5 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>
               </div>
 
               {/* Category filter */}
-              <div className="border-b border-border pb-6">
-                <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4">
+              <div className="border-b border-gray-200 pb-6">
+                <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4 text-gray-900">
                   <span>Категория</span>
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
                 <div className="space-y-2">
                   {initialCategories.map((category) => (
                     <label
                       key={category.id}
-                      className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-muted px-2 rounded"
+                      className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
                     >
                       <input
                         type="radio"
@@ -214,23 +214,23 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
                         onChange={() => setSelectedCategory(category.slug)}
                         className="w-4 h-4 text-accent focus:ring-accent"
                       />
-                      <span className="text-sm">{category.translations[0]?.name || category.name}</span>
+                      <span className="text-sm text-gray-700">{category.translations[0]?.name || category.name}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               {/* Size filter */}
-              <div className="border-b border-border pb-6">
-                <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4">
+              <div className="border-b border-gray-200 pb-6">
+                <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4 text-gray-900">
                   <span>Размер</span>
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
                 <div className="space-y-2">
                   {["S", "M", "L", "XL"].map((size) => (
                     <label
                       key={size}
-                      className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-muted px-2 rounded"
+                      className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
                     >
                       <input
                         type="checkbox"
@@ -238,7 +238,7 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
                         onChange={() => toggleSize(size)}
                         className="w-4 h-4 rounded text-accent focus:ring-accent"
                       />
-                      <span className="text-sm">{size}</span>
+                      <span className="text-sm text-gray-700">{size}</span>
                     </label>
                   ))}
                 </div>
@@ -246,14 +246,14 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
 
               {/* Sort by */}
               <div className="pb-6">
-                <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4">
+                <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4 text-gray-900">
                   <span>Сортиране</span>
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full border border-border rounded-md px-4 py-2.5 bg-background focus:outline-none focus:ring-2 focus:ring-accent"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2.5 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   <option value="newest">Най-нови</option>
                   <option value="price_asc">Цена: възходящ</option>
@@ -264,10 +264,10 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
             </div>
 
             {/* Bottom buttons */}
-            <div className="sticky bottom-0 bg-background border-t border-border p-6 flex space-x-3">
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex space-x-3">
               <button
                 onClick={clearFilters}
-                className="flex-1 px-6 py-3 border-2 border-foreground bg-background text-foreground hover:bg-muted transition-colors font-medium"
+                className="flex-1 px-6 py-3 border-2 border-gray-900 bg-white text-gray-900 hover:bg-gray-50 transition-colors font-medium"
               >
                 Изчисти всичко
               </button>
