@@ -1,6 +1,5 @@
 import Link from "next/link"
-import { Facebook, Instagram, Phone, Mail } from "lucide-react"
-import Image from "next/image"
+import { Facebook, Instagram, Phone, Mail, MapPin } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -19,20 +18,33 @@ export default function Footer() {
               referrerPolicy="no-referrer-when-downgrade"
               title="Izabel's Flowers Location"
             />
-            {/* Оверлей с логотипом и текстом поверх карты */}
-            <div className="absolute bottom-0 left-0 p-4 bg-black/60 backdrop-blur-sm rounded-tr-lg max-w-sm">
-              <div className="mb-3">
-                <Image src="/isabels-flower-logo.svg" alt="Izabel's Flowers" width={80} height={40} className="brightness-0 invert" />
+            {/* Оверлей с контактами поверх карты */}
+            <div className="absolute bottom-0 left-0 p-4 bg-black/60 backdrop-blur-sm rounded-tr-lg">
+              <div className="space-y-3 text-gray-200 text-sm">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 flex-shrink-0" />
+                  <span>ул. Тодор Радев Пенев 13, Варна</span>
+                </div>
+                <a
+                  href="tel:+359888110801"
+                  className="flex items-center gap-2 hover:text-white transition"
+                >
+                  <Phone className="w-4 h-4 flex-shrink-0" />
+                  +359 888 110 801
+                </a>
+                <a
+                  href="mailto:info@izabels.bg"
+                  className="flex items-center gap-2 hover:text-white transition"
+                >
+                  <Mail className="w-4 h-4 flex-shrink-0" />
+                  info@izabels.bg
+                </a>
               </div>
-              <p className="text-gray-200 leading-relaxed text-sm">
-                Izabel's Flowers — флорист във Варна, предлагащ луксозни букети от цветя и индивидуални аранжировки,
-                флорални работилници и доставка в същия ден в цяла Варна.
-              </p>
             </div>
           </div>
 
-          {/* Информация - 2 колонки */}
-          <div className="md:col-span-2">
+          {/* Информация - 4 колонки */}
+          <div className="md:col-span-4">
             <h3 className="text-white font-semibold mb-6 tracking-wide text-base">Информация</h3>
             <nav className="space-y-3">
               <Link href="/za-nas" className="block text-white hover:text-gray-200 transition text-base">
@@ -48,27 +60,6 @@ export default function Footer() {
                 Блог
               </Link>
             </nav>
-          </div>
-
-          {/* Контакти - 2 колонки */}
-          <div className="md:col-span-2">
-            <h3 className="text-white font-semibold mb-6 tracking-wide text-base">Контакти</h3>
-            <div className="space-y-4 text-white">
-              <a
-                href="tel:+359888110801"
-                className="flex items-center gap-2 hover:text-gray-200 transition text-base"
-              >
-                <Phone className="w-4 h-4" />
-                +359 888 110 801
-              </a>
-              <a
-                href="mailto:info@izabels.bg"
-                className="flex items-center gap-2 hover:text-gray-200 transition text-base"
-              >
-                <Mail className="w-4 h-4" />
-                info@izabels.bg
-              </a>
-            </div>
           </div>
         </div>
       </div>
