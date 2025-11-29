@@ -2,11 +2,19 @@ import { v2 as cloudinary } from 'cloudinary';
 import logger from './logger';
 
 // Конфигурация Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Поддерживает CLOUDINARY_URL или отдельные переменные
+if (process.env.CLOUDINARY_URL) {
+  // CLOUDINARY_URL формат: cloudinary://API_KEY:API_SECRET@CLOUD_NAME
+  // SDK автоматически парсит этот URL
+  cloudinary.config({ secure: true });
+} else {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
+  });
+}
 
 export interface UploadResult {
   url: string;
