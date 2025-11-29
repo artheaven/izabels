@@ -2,28 +2,18 @@
 const nextConfig = {
   images: {
     remotePatterns: [
+      // Cloudinary - основное хранилище изображений
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      // Legacy: локальная разработка
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '5001',
         pathname: '/uploads/**',
-      },
-      // Production Railway domain
-      {
-        protocol: 'https',
-        hostname: 'izabels-production.up.railway.app',
-        pathname: '/uploads/**',
-      },
-      // Railway subdomains
-      {
-        protocol: 'https',
-        hostname: '**.railway.app',
-        pathname: '/uploads/**',
-      },
-      // Если используете Cloudinary для uploads
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
       },
     ],
   },

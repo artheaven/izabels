@@ -86,7 +86,7 @@ export const createPackaging = async (req: AuthRequest, res: Response) => {
     // Обрабатываем изображения
     let images: string[] = [];
     if (req.files && Array.isArray(req.files)) {
-      images = await processImages(req.files);
+      images = await processImages(req.files, 'packaging');
     }
 
     // Создаем упаковку
@@ -151,7 +151,7 @@ export const updatePackaging = async (req: AuthRequest, res: Response) => {
     // Обрабатываем новые изображения
     let newImages: string[] = [];
     if (req.files && Array.isArray(req.files)) {
-      newImages = await processImages(req.files);
+      newImages = await processImages(req.files, 'packaging');
     }
 
     const existingImagesArray = existingImages ? JSON.parse(existingImages) : packaging.images;

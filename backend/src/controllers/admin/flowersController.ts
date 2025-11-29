@@ -100,7 +100,7 @@ export const createFlower = async (req: AuthRequest, res: Response) => {
     // Обрабатываем изображения
     let images: string[] = [];
     if (req.files && Array.isArray(req.files)) {
-      images = await processImages(req.files);
+      images = await processImages(req.files, 'flowers');
     }
 
     // Создаем цветок
@@ -159,7 +159,7 @@ export const updateFlower = async (req: AuthRequest, res: Response) => {
     // Обрабатываем новые изображения
     let newImages: string[] = [];
     if (req.files && Array.isArray(req.files)) {
-      newImages = await processImages(req.files);
+      newImages = await processImages(req.files, 'flowers');
     }
 
     // Объединяем существующие и новые изображения

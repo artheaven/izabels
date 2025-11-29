@@ -1,31 +1,19 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary';
+import logger from '../utils/logger';
 
-// Создаем папки для загрузок
-const uploadDir = path.join(__dirname, '..', '..', 'uploads');
-const flowersDir = path.join(uploadDir, 'flowers');
-const packagingDir = path.join(uploadDir, 'packaging');
-const bouquetsDir = path.join(uploadDir, 'bouquets');
+// Создаем временную папку для загрузок
+const tempDir = path.join(__dirname, '..', '..', 'temp');
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
 
-[uploadDir, flowersDir, packagingDir, bouquetsDir].forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-});
-
-// Конфигурация хранилища
+// Конфигурация хранилища - временно на диск
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    let folder = 'flowers';
-    
-    if (req.path.includes('/bouquets')) {
-      folder = 'bouquets';
-    } else if (req.path.includes('/packaging')) {
-      folder = 'packaging';
-    }
-    
-    cb(null, path.join(uploadDir, folder));
+    cb(null, tempDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -50,18 +38,63 @@ export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5 MB
+    fileSize: 10 * 1024 * 1024, // 10 MB
   },
 });
 
-// Утилита для удаления файла
-export const deleteFile = (filePath: string): void => {
+/**
+ * Загрузить файл в Cloudinary и удалить временный файл
+ */
+export const uploadFileToCloud = async (
+  file: Express.Multer.File,
+  folder: string = 'bouquets'
+): Promise<string> => {
   try {
-    const fullPath = path.join(uploadDir, filePath);
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
+    const result = await uploadToCloudinary(file.path, folder);
+    
+    // Удаляем временный файл
+    if (fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+    
+    return result.url;
+  } catch (error) {
+    // Удаляем временный файл при ошибке
+    if (fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+    throw error;
+  }
+};
+
+/**
+ * Загрузить несколько файлов в Cloudinary
+ */
+export const uploadFilesToCloud = async (
+  files: Express.Multer.File[],
+  folder: string = 'bouquets'
+): Promise<string[]> => {
+  const urls = await Promise.all(
+    files.map((file) => uploadFileToCloud(file, folder))
+  );
+  return urls;
+};
+
+/**
+ * Удалить файл (для обратной совместимости)
+ * Для Cloudinary URL - извлекаем publicId и удаляем
+ */
+export const deleteFile = async (fileUrl: string): Promise<void> => {
+  try {
+    if (fileUrl.includes('cloudinary.com')) {
+      // Извлекаем publicId из URL
+      const matches = fileUrl.match(/\/izabels\/([^/]+\/[^.]+)/);
+      if (matches) {
+        const publicId = `izabels/${matches[1]}`;
+        await deleteFromCloudinary(publicId);
+      }
     }
   } catch (error) {
-    console.error('Ошибка при удалении файла:', error);
+    logger.error('Ошибка при удалении файла:', error);
   }
 };

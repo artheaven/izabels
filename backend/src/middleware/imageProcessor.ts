@@ -1,52 +1,50 @@
-import sharp from 'sharp';
-import path from 'path';
 import fs from 'fs';
+import { uploadToCloudinary } from '../utils/cloudinary';
+import logger from '../utils/logger';
 
 /**
- * Обработка и оптимизация загруженного изображения
+ * Обработка и загрузка изображения в Cloudinary
+ * Cloudinary автоматически оптимизирует изображения
  */
 export const processImage = async (
   file: Express.Multer.File,
-  maxWidth: number = 1200,
-  quality: number = 85
+  folder: string = 'bouquets'
 ): Promise<string> => {
   try {
-    const outputPath = file.path;
-    const tempPath = `${outputPath}.temp`;
-
-    // Обрабатываем изображение
-    await sharp(file.path)
-      .resize(maxWidth, null, {
-        fit: 'inside',
-        withoutEnlargement: true,
-      })
-      .jpeg({ quality, progressive: true })
-      .toFile(tempPath);
-
-    // Заменяем оригинал обработанным
-    fs.unlinkSync(outputPath);
-    fs.renameSync(tempPath, outputPath);
-
-    return path.basename(outputPath);
+    // Загружаем в Cloudinary (он сам оптимизирует)
+    const result = await uploadToCloudinary(file.path, folder);
+    
+    // Удаляем временный файл
+    if (fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+    
+    // Возвращаем полный URL от Cloudinary
+    return result.url;
   } catch (error) {
-    console.error('Ошибка при обработке изображения:', error);
+    // Удаляем временный файл при ошибке
+    if (fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+    logger.error('Ошибка при обработке изображения:', error);
     throw error;
   }
 };
 
 /**
  * Обработка массива файлов
+ * @param files - массив файлов
+ * @param folder - папка в Cloudinary (bouquets, flowers, packaging)
  */
 export const processImages = async (
-  files: Express.Multer.File[]
+  files: Express.Multer.File[],
+  folder: string = 'bouquets'
 ): Promise<string[]> => {
   const processed: string[] = [];
 
   for (const file of files) {
-    const filename = await processImage(file);
-    // Возвращаем относительный путь
-    const folder = path.basename(path.dirname(file.path));
-    processed.push(`${folder}/${filename}`);
+    const url = await processImage(file, folder);
+    processed.push(url);
   }
 
   return processed;

@@ -319,10 +319,10 @@ export const adminApi = {
 // Утилита для получения URL изображения
 export const getImageUrl = (path: string) => {
   if (!path) return '/placeholder.jpg';
+  // Cloudinary или другие внешние URL - возвращаем как есть
   if (path.startsWith('http')) return path;
-  // Временно используем placeholder пока не настроено облачное хранилище
-  // TODO: Интегрировать Cloudinary или S3
-  const fullUrl = `${API_URL}/uploads/${path}`;
-  return fullUrl;
+  // Legacy локальные пути - fallback на placeholder
+  // (старые данные до миграции на Cloudinary)
+  return '/placeholder.jpg';
 };
 
