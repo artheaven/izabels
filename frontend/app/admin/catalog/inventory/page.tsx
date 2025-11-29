@@ -220,7 +220,7 @@ export default function InventoryPage() {
               
               {flowerCategories.map((cat) => {
                 const count = flowers.filter(f => f.categoryId === cat.id).length;
-                const bgTranslation = cat.translations.find((t: any) => t.lang === 'bg');
+                const bgTranslation = cat.translations?.find((t: any) => t.lang === 'bg');
                 return (
                   <button
                     key={cat.id}
@@ -231,7 +231,7 @@ export default function InventoryPage() {
                         : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    {bgTranslation?.name || cat.translations[0]?.name || cat.slug} ({count})
+                    {bgTranslation?.name || cat.translations?.[0]?.name || cat.name || cat.slug} ({count})
                   </button>
                 );
               })}
@@ -266,7 +266,7 @@ export default function InventoryPage() {
                       <td className="px-6 py-4">
                         {flower.images?.[0] ? (
                           <Image
-                            src={getImageUrl(flower.images[0].url)}
+                            src={getImageUrl(flower.images[0])}
                             alt={translation?.name || flower.sku}
                             width={60}
                             height={60}
@@ -281,7 +281,7 @@ export default function InventoryPage() {
                       <td className="px-6 py-4 font-medium">{translation?.name || '-'}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{flower.sku}</td>
                       <td className="px-6 py-4 text-sm">
-                        {category?.translations.find((t: any) => t.lang === 'bg')?.name || category?.translations[0]?.name || '-'}
+                        {category?.translations?.find((t: any) => t.lang === 'bg')?.name || category?.translations?.[0]?.name || category?.name || '-'}
                       </td>
                       <td className="px-6 py-4 font-semibold">{formatPrice(flower.price)}</td>
                       <td className="px-6 py-4">
@@ -333,7 +333,7 @@ export default function InventoryPage() {
               
               {packagingTypes.map((type) => {
                 const count = packaging.filter(p => p.typeId === type.id).length;
-                const bgTranslation = type.translations.find((t: any) => t.lang === 'bg');
+                const bgTranslation = type.translations?.find((t: any) => t.lang === 'bg');
                 return (
                   <button
                     key={type.id}
@@ -344,7 +344,7 @@ export default function InventoryPage() {
                         : 'bg-white text-gray-700 hover:bg-gray-100'
                     }`}
                   >
-                    {bgTranslation?.name || type.translations[0]?.name || type.slug} ({count})
+                    {bgTranslation?.name || type.translations?.[0]?.name || type.name || type.slug} ({count})
                   </button>
                 );
               })}
@@ -379,7 +379,7 @@ export default function InventoryPage() {
                       <td className="px-6 py-4">
                         {pack.images?.[0] ? (
                           <Image
-                            src={getImageUrl(pack.images[0].url)}
+                            src={getImageUrl(pack.images[0])}
                             alt={translation?.name || pack.sku}
                             width={60}
                             height={60}
@@ -394,7 +394,7 @@ export default function InventoryPage() {
                       <td className="px-6 py-4 font-medium">{translation?.name || '-'}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{pack.sku}</td>
                       <td className="px-6 py-4 text-sm">
-                        {type?.translations.find((t: any) => t.lang === 'bg')?.name || type?.translations[0]?.name || '-'}
+                        {type?.translations?.find((t: any) => t.lang === 'bg')?.name || type?.translations?.[0]?.name || type?.name || '-'}
                       </td>
                       <td className="px-6 py-4 font-semibold">{formatPrice(pack.pricePerUnit)}</td>
                       <td className="px-6 py-4">

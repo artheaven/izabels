@@ -49,9 +49,9 @@ export default function ProductsPage() {
     }
   };
 
-  const handleToggleVisibility = async (id: number, currentStatus: boolean) => {
+  const handleToggleVisibility = async (id: number) => {
     try {
-      await adminApi.updateBouquet(id, { isActive: !currentStatus });
+      await adminApi.toggleBouquet(id);
       loadData();
     } catch (error) {
       console.error('Error toggling visibility:', error);
@@ -202,7 +202,7 @@ export default function ProductsPage() {
           
           {categories.map((cat) => {
             const count = bouquets.filter(b => b.categoryId === cat.id).length;
-            const bgTranslation = cat.translations.find((t: any) => t.lang === 'bg');
+            const bgTranslation = cat.translations?.find((t: any) => t.lang === 'bg');
             return (
               <button
                 key={cat.id}
@@ -213,7 +213,7 @@ export default function ProductsPage() {
                     : 'bg-white text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                {bgTranslation?.name || cat.translations[0]?.name || cat.slug} ({count})
+                {bgTranslation?.name || cat.translations?.[0]?.name || cat.name || cat.slug} ({count})
               </button>
             );
           })}
@@ -244,7 +244,7 @@ export default function ProductsPage() {
                   <td className="px-6 py-4">
                     {bouquet.images?.[0] ? (
                       <Image
-                        src={getImageUrl(bouquet.images[0].url)}
+                        src={getImageUrl(bouquet.images[0])}
                         alt={translation?.name || bouquet.sku}
                         width={60}
                         height={60}
@@ -261,12 +261,12 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">{bouquet.sku}</td>
                   <td className="px-6 py-4 text-sm">
-                    {category?.translations.find((t: any) => t.lang === 'bg')?.name || category?.translations[0]?.name || '-'}
+                    {category?.translations?.find((t: any) => t.lang === 'bg')?.name || category?.translations?.[0]?.name || category?.name || '-'}
                   </td>
                   <td className="px-6 py-4 font-semibold">{formatPrice(bouquet.price)}</td>
                   <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                     <button
-                      onClick={() => handleToggleVisibility(bouquet.id, bouquet.isActive)}
+                      onClick={() => handleToggleVisibility(bouquet.id)}
                       className={`flex items-center space-x-1 px-3 py-1 rounded text-sm font-medium transition-colors ${
                         bouquet.isActive
                           ? 'bg-green-100 text-green-800 hover:bg-green-200'
