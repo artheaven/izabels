@@ -26,6 +26,7 @@ interface Category {
   id: number
   name: string
   slug: string
+  type?: string // BOUQUET, FLOWER, PACKAGING
   translations: Array<{
     name: string
   }>
@@ -33,6 +34,7 @@ interface Category {
     id: number
     name: string
     slug: string
+    type?: string
     translations: Array<{
       name: string
     }>
@@ -212,49 +214,51 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
                 </div>
               </div>
 
-              {/* Category filter - подкатегории из админки */}
+              {/* Category filter - только подкатегории товаров (не инвентаря) */}
               <div className="border-b border-gray-200 pb-6">
                 <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4 text-gray-900">
                   <span>Категория</span>
                   <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
                 <div className="space-y-2">
-                  {initialCategories.flatMap((category) => {
-                    // Если есть дети - показываем подкатегории
-                    if (category.children && category.children.length > 0) {
-                      return category.children.map((child) => (
+                  {initialCategories
+                    .filter((category) => category.type === 'BOUQUET' || !category.type)
+                    .flatMap((category) => {
+                      // Если есть дети - показываем подкатегории
+                      if (category.children && category.children.length > 0) {
+                        return category.children.map((child) => (
+                          <label
+                            key={child.id}
+                            className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
+                          >
+                            <input
+                              type="radio"
+                              name="category"
+                              checked={selectedCategory === child.slug}
+                              onChange={() => setSelectedCategory(child.slug)}
+                              className="w-4 h-4 text-accent focus:ring-accent"
+                            />
+                            <span className="text-sm text-gray-700">{child.translations[0]?.name || child.name}</span>
+                          </label>
+                        ))
+                      }
+                      // Иначе показываем саму категорию (только если это товары)
+                      return (
                         <label
-                          key={child.id}
+                          key={category.id}
                           className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
                         >
                           <input
                             type="radio"
                             name="category"
-                            checked={selectedCategory === child.slug}
-                            onChange={() => setSelectedCategory(child.slug)}
+                            checked={selectedCategory === category.slug}
+                            onChange={() => setSelectedCategory(category.slug)}
                             className="w-4 h-4 text-accent focus:ring-accent"
                           />
-                          <span className="text-sm text-gray-700">{child.translations[0]?.name || child.name}</span>
+                          <span className="text-sm text-gray-700">{category.translations[0]?.name || category.name}</span>
                         </label>
-                      ))
-                    }
-                    // Иначе показываем саму категорию
-                    return (
-                      <label
-                        key={category.id}
-                        className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
-                      >
-                        <input
-                          type="radio"
-                          name="category"
-                          checked={selectedCategory === category.slug}
-                          onChange={() => setSelectedCategory(category.slug)}
-                          className="w-4 h-4 text-accent focus:ring-accent"
-                        />
-                        <span className="text-sm text-gray-700">{category.translations[0]?.name || category.name}</span>
-                      </label>
-                    )
-                  })}
+                      )
+                    })}
                 </div>
               </div>
 

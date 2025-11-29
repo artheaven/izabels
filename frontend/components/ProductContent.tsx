@@ -42,9 +42,10 @@ interface Translation {
 interface Props {
   product: Product
   translation: Translation
+  categoryName?: string
 }
 
-export default function ProductContent({ product, translation }: Props) {
+export default function ProductContent({ product, translation, categoryName }: Props) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
   // Выбираем первый доступный размер по умолчанию
@@ -238,7 +239,7 @@ export default function ProductContent({ product, translation }: Props) {
       {/* Right: Product Details */}
       <div className="flex flex-col">
         {/* Category Tag */}
-        <p className="text-xs tracking-widest uppercase mb-4 text-gray-600">БУКЕТИ</p>
+        <p className="text-xs tracking-widest uppercase mb-4 text-gray-600">{categoryName || 'БУКЕТИ'}</p>
 
         {/* Product Name */}
         <h1 className="text-4xl font-normal mb-4 font-serif">{translation.name}</h1>

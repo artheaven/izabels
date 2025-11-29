@@ -38,7 +38,7 @@ export default async function ProductPage({ params }: { params: { sku: string } 
       />
       <main className="min-h-screen">
         <div className="container mx-auto px-4 pb-8">
-          <ProductContent product={product} translation={translation} />
+          <ProductContent product={product} translation={translation} categoryName={categoryName} />
         </div>
       </main>
       <Footer />

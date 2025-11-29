@@ -6,20 +6,23 @@ export default function Footer() {
   return (
     <footer className="bg-accent text-white mt-20">
       <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-          {/* Лого и описание */}
-          <div className="md:col-span-1">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          {/* Лого и описание - шире */}
+          <div className="md:col-span-5">
             <div className="mb-6">
               <Image src="/logo.svg" alt="Izabel's Flowers" width={80} height={80} className="mb-4" />
             </div>
-            <p className="text-gray-300 leading-relaxed text-sm">
+            <p className="text-gray-300 leading-relaxed text-sm max-w-md">
               Izabel's Flowers — флорист във Варна, предлагащ луксозни букети от цветя и индивидуални аранжировки,
               флорални работилници и доставка в същия ден в цяла Варна.
             </p>
           </div>
 
-          {/* Информация */}
-          <div>
+          {/* Пустая колонка для отступа */}
+          <div className="hidden md:block md:col-span-3"></div>
+
+          {/* Информация - справа */}
+          <div className="md:col-span-2">
             <h3 className="text-white font-semibold mb-6 tracking-wide text-base">Информация</h3>
             <nav className="space-y-3">
               <Link href="/about" className="block text-white hover:text-gray-200 transition text-base">
@@ -37,14 +40,11 @@ export default function Footer() {
             </nav>
           </div>
 
-          {/* Пустая колонка для баланса */}
-          <div className="hidden md:block"></div>
-
-          {/* Нашият магазин с картой - справа */}
-          <div className="md:text-right">
+          {/* Нашият магазин - после Информация */}
+          <div className="md:col-span-2">
             <h3 className="text-white font-semibold mb-6 tracking-wide text-base">Нашият магазин</h3>
-            {/* Мини-карта (пока картинка-заглушка) */}
-            <div className="relative w-full h-24 mb-4 rounded overflow-hidden bg-gray-700 md:ml-auto md:w-48">
+            {/* Карта крупнее */}
+            <div className="relative w-full h-32 mb-4 rounded overflow-hidden bg-gray-700">
               <Image 
                 src="/placeholder.jpg" 
                 alt="Карта" 
@@ -55,7 +55,7 @@ export default function Footer() {
                 <span className="text-xs text-gray-300">Google Maps</span>
               </div>
             </div>
-            <div className="space-y-3 text-white text-base">
+            <div className="space-y-2 text-white text-base">
               <p>
                 ул. Тодор Радев Пенев 13
                 <br />
