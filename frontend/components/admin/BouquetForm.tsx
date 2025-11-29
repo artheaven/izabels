@@ -721,5 +721,3 @@ export default function BouquetForm({ bouquet, categories, flowers, packaging, o
     </form>
   );
 }
-
-

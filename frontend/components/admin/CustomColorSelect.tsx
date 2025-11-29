@@ -238,4 +238,3 @@ export default function CustomColorSelect({ value, onChange, label = 'Цвет',
     </div>
   );
 }
-

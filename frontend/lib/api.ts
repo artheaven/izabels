@@ -325,4 +325,3 @@ export const getImageUrl = (path: string) => {
   // (старые данные до миграции на Cloudinary)
   return '/placeholder.jpg';
 };
-

@@ -259,4 +259,3 @@ export default function FlowerForm({ flower, categories, onSubmit, onCancel }: P
     </form>
   );
 }
-

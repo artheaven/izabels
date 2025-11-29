@@ -30,4 +30,3 @@ export default function PriceDisplaySmall({ price, className = '', oldPrice, sho
     </div>
   );
 }
-

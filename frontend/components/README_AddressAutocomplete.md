@@ -21,7 +21,7 @@
 
 ## Использование
 
-```tsx
+\`\`\`tsx
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 <AddressAutocomplete
@@ -31,7 +31,7 @@ import AddressAutocomplete from '@/components/AddressAutocomplete';
   required={true}
   city="Varna"
 />
-```
+\`\`\`
 
 ## Props
 
@@ -58,7 +58,7 @@ import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 ## Пример ответа API
 
-```json
+\`\`\`json
 {
   "features": [
     {
@@ -75,7 +75,7 @@ import AddressAutocomplete from '@/components/AddressAutocomplete';
     }
   ]
 }
-```
+\`\`\`
 
 ## Интеграция в форму заказа
 Компонент интегрирован в `/app/koshnica/page.tsx`:
@@ -95,4 +95,3 @@ import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 ## Лицензия
 Photon API: [Open Database License (ODbL)](https://www.openstreetmap.org/copyright)
-

@@ -318,4 +318,3 @@ export default function AdminBouquetsPage() {
     </div>
   );
 }
-

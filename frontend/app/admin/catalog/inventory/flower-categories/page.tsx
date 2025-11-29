@@ -220,4 +220,3 @@ export default function FlowerCategoriesPage() {
     </div>
   );
 }
-

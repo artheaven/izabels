@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Facebook, Instagram, Mail, Phone } from "lucide-react"
+import { Facebook, Instagram } from "lucide-react"
 import Image from "next/image"
 
 export default function Footer() {
@@ -7,32 +7,19 @@ export default function Footer() {
     <footer className="bg-accent text-white mt-20">
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          {/* Google Maps с оверлеем - слева до блока Информация */}
-          <div className="md:col-span-8 relative h-64 md:h-auto md:min-h-[280px] rounded-lg overflow-hidden">
-            {/* Карта Google Maps - занимает всю область */}
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2907.8!2d27.9147!3d43.2141!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDEyJzUwLjgiTiAyN8KwNTQnNTMuMCJF!5e0!3m2!1sen!2sbg!4v1"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Izabel's Flowers Location"
-              className="absolute inset-0"
-            />
-            
-            {/* Лого и текст - оверлей поверх карты */}
-            <div className="absolute bottom-4 left-4 right-4 md:right-auto md:max-w-sm bg-black/50 backdrop-blur-sm rounded-lg p-4 z-10">
-              <div className="mb-3">
-                <Image src="/logo.svg" alt="Izabel's Flowers" width={60} height={60} />
-              </div>
-              <p className="text-gray-100 leading-relaxed text-sm">
-                Izabel's Flowers — флорист във Варна, предлагащ луксозни букети от цветя и индивидуални аранжировки,
-                флорални работилници и доставка в същия ден в цяла Варна.
-              </p>
+          {/* Лого и описание - шире */}
+          <div className="md:col-span-5">
+            <div className="mb-6">
+              <Image src="/logo.svg" alt="Izabel's Flowers" width={80} height={80} className="mb-4" />
             </div>
+            <p className="text-gray-300 leading-relaxed text-sm max-w-md">
+              Izabel's Flowers — флорист във Варна, предлагащ луксозни букети от цветя и индивидуални аранжировки,
+              флорални работилници и доставка в същия ден в цяла Варна.
+            </p>
           </div>
+
+          {/* Пустая колонка для отступа */}
+          <div className="hidden md:block md:col-span-3"></div>
 
           {/* Информация - справа */}
           <div className="md:col-span-2">
@@ -53,24 +40,28 @@ export default function Footer() {
             </nav>
           </div>
 
-          {/* Контакти */}
+          {/* Нашият магазин - после Информация */}
           <div className="md:col-span-2">
-            <h3 className="text-white font-semibold mb-6 tracking-wide text-base">Контакти</h3>
-            <div className="space-y-4 text-white">
-              <a 
-                href="tel:+359888110801" 
-                className="flex items-center gap-2 hover:text-gray-200 transition text-base"
-              >
-                <Phone className="w-4 h-4" />
-                +359 888 110 801
-              </a>
-              <a 
-                href="mailto:info@izabels.bg" 
-                className="flex items-center gap-2 hover:text-gray-200 transition text-base"
-              >
-                <Mail className="w-4 h-4" />
-                info@izabels.bg
-              </a>
+            <h3 className="text-white font-semibold mb-6 tracking-wide text-base">Нашият магазин</h3>
+            {/* Карта крупнее */}
+            <div className="relative w-full h-32 mb-4 rounded overflow-hidden bg-gray-700">
+              <Image 
+                src="/placeholder.jpg" 
+                alt="Карта" 
+                fill 
+                className="object-cover opacity-60"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-xs text-gray-300">Google Maps</span>
+              </div>
+            </div>
+            <div className="space-y-2 text-white text-base">
+              <p>
+                ул. Тодор Радев Пенев 13
+                <br />
+                Варна
+              </p>
+              <p>+359 888 110 801</p>
             </div>
           </div>
         </div>

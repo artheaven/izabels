@@ -206,4 +206,3 @@ export default function PackagingForm({ packaging, categories, onSubmit, onCance
     </form>
   );
 }
-

@@ -36,7 +36,7 @@ export default async function HomePage() {
               playsInline
               className="w-full h-full object-cover"
             >
-              <source src="/10536481-hd_1366_720_25fps.mp4" type="video/mp4" />
+              <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_a5xiow1MxOPXnm6VYN2RD4wsnnAa/Y39TNeXx-poekYyRWUl-zO/public/10536481-hd_1366_720_25fps.mp4" type="video/mp4" />
             </video>
             {/* Overlay 30% затемнение */}
             <div className="absolute inset-0 bg-black/30" />

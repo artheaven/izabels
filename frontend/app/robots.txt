@@ -5,4 +5,3 @@ Disallow: /koshnica
 Disallow: /porachka
 
 Sitemap: https://yourdomain.com/sitemap.xml
-

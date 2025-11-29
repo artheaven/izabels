@@ -72,4 +72,3 @@ export default function EditFlowerPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
-

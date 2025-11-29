@@ -31,4 +31,3 @@ export default function PriceDisplay({ price, className = '', showOldPrice = fal
     </div>
   );
 }
-

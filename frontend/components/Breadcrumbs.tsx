@@ -99,4 +99,3 @@ export default function Breadcrumbs({ items, currentPage }: BreadcrumbsProps) {
     </nav>
   )
 }
-
