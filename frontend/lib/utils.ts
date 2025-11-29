@@ -7,8 +7,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export const EUR_TO_BGN_RATE = 1.95583;
 
-export function formatPrice(price: number | string): string {
+export function formatPrice(price: number | string | null | undefined): string {
+  if (price === null || price === undefined) return '0.00 лв';
   const num = typeof price === 'string' ? parseFloat(price) : price;
+  if (isNaN(num)) return '0.00 лв';
   return `${num.toFixed(2)} лв`;
 }
 

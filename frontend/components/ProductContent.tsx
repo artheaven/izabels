@@ -349,7 +349,7 @@ export default function ProductContent({ product, translation }: Props) {
           className="w-full bg-gray-100 hover:bg-gray-200 text-black py-4 mb-8 flex items-center justify-between px-6 transition text-sm tracking-wide"
         >
           <span>ДОБАВИ В КОЛИЧКА</span>
-          <span>{formatPrice(product.price)}</span>
+          <span>{formatPrice(currentPrice)}</span>
         </button>
 
         {/* Expandable Sections */}
