@@ -27,12 +27,21 @@ export default function CartPage() {
   const [formData, setFormData] = useState({
     customerName: '',
     customerPhone: '',
+    customerPhoneCountry: '+359', // Болгария по умолчанию
     customerEmail: '',
-    deliveryAddress: '',
+    deliveryStreet: '',
+    deliveryNumber: '',
     apartment: '',
     floor: '',
+    recipientPhone: '',
+    recipientPhoneCountry: '+359',
     comment: '',
   });
+  
+  // Валидация полей
+  const [phoneError, setPhoneError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [recipientPhoneError, setRecipientPhoneError] = useState('');
   
   const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'DELIVERY_BULGARIA' | 'PICKUP'>('DELIVERY');
   const [deliveryDate, setDeliveryDate] = useState('');
@@ -65,17 +74,30 @@ export default function CartPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Валидация адреса - проверка наличия номера дома
-  const validateAddress = (address: string): boolean => {
-    if (!address || address.trim().length === 0) {
-      setAddressError('Моля, въведете адрес');
+  // Валидация телефона (болгарский формат: 8-9 цифр после кода страны)
+  const validatePhone = (phone: string): boolean => {
+    const digitsOnly = phone.replace(/\D/g, '');
+    return digitsOnly.length >= 8 && digitsOnly.length <= 12;
+  };
+
+  // Валидация email
+  const validateEmail = (email: string): boolean => {
+    if (!email) return true; // Email не обязателен
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Валидация адреса
+  const validateAddress = (): boolean => {
+    if (deliveryType === 'PICKUP') return true;
+    
+    if (!formData.deliveryStreet || formData.deliveryStreet.trim().length === 0) {
+      setAddressError('Моля, въведете улица');
       return false;
     }
     
-    // Проверяем наличие цифр (номер дома)
-    const hasNumber = /\d+/.test(address);
-    if (!hasNumber) {
-      setAddressError('Моля, въведете номер на дома (например: ул. Симеон 25)');
+    if (!formData.deliveryNumber || formData.deliveryNumber.trim().length === 0) {
+      setAddressError('Моля, въведете номер на дома');
       return false;
     }
     
@@ -83,17 +105,42 @@ export default function CartPage() {
     return true;
   };
 
+  // Доставка: бесплатно от 60 лв, иначе 10 лв
+  const FREE_DELIVERY_THRESHOLD = 60;
+  const DELIVERY_COST = 10;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setAddressError('');
+    setPhoneError('');
+    setEmailError('');
+    setRecipientPhoneError('');
     
-    // Валидация адреса для доставки
-    if (deliveryType !== 'PICKUP') {
-      if (!validateAddress(formData.deliveryAddress)) {
-        setLoading(false);
+    // Валидация телефона
+    const fullPhone = formData.customerPhone;
+    if (!validatePhone(fullPhone)) {
+      setPhoneError('Моля, въведете валиден телефонен номер');
+      return;
+    }
+    
+    // Валидация email
+    if (formData.customerEmail && !validateEmail(formData.customerEmail)) {
+      setEmailError('Моля, въведете валиден имейл адрес');
+      return;
+    }
+    
+    // Валидация телефона получателя
+    if (deliveryType !== 'PICKUP' && formData.recipientPhone) {
+      if (!validatePhone(formData.recipientPhone)) {
+        setRecipientPhoneError('Моля, въведете валиден телефонен номер на получателя');
         return;
       }
+    }
+    
+    // Валидация адреса для доставки
+    if (!validateAddress()) {
+      return;
     }
     
     setLoading(true);
@@ -108,8 +155,8 @@ export default function CartPage() {
       }));
 
       // Формируем полный адрес
-      let fullAddress = formData.deliveryAddress;
-      if (deliveryType !== 'PICKUP' && (formData.apartment || formData.floor)) {
+      let fullAddress = `${formData.deliveryStreet} ${formData.deliveryNumber}`;
+      if (deliveryType !== 'PICKUP') {
         const details = [];
         if (formData.apartment) details.push(`Апт. ${formData.apartment}`);
         if (formData.floor) details.push(`Ет. ${formData.floor}`);
@@ -118,18 +165,23 @@ export default function CartPage() {
         }
       }
 
+      // Рассчитываем стоимость доставки
+      const deliveryPrice = deliveryType === 'PICKUP' ? 0 : 
+        (totalPrice >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_COST);
+
       const orderData = {
         customerName: formData.customerName,
-        customerPhone: formData.customerPhone,
+        customerPhone: `${formData.customerPhoneCountry}${formData.customerPhone}`,
         customerEmail: formData.customerEmail || undefined,
-        deliveryAddress: deliveryType === 'PICKUP' ? 'Самовземане - ул. Примерна 123, Варна' : fullAddress,
+        recipientPhone: formData.recipientPhone ? `${formData.recipientPhoneCountry}${formData.recipientPhone}` : undefined,
+        deliveryAddress: deliveryType === 'PICKUP' ? 'Самовземане - ул. Тодор Радев Пенев 13, Варна' : fullAddress,
         deliveryType: deliveryType,
         deliveryDate: deliveryDate || null,
         deliveryTime: deliveryTime || null,
         comment: formData.comment || undefined,
         paymentMethod: paymentMethod,
         items: orderItems,
-        deliveryPrice: 0,
+        deliveryPrice: deliveryPrice,
         promoCode: promoCode || undefined,
         promoDiscount: promoDiscount || 0,
       };
@@ -195,7 +247,18 @@ export default function CartPage() {
   }
 
   const totalPrice = getTotalPrice();
-  const finalPrice = totalPrice - promoDiscount;
+  // Доставка: бесплатно от 60 лв, иначе 10 лв (или самовывоз бесплатно)
+  const deliveryPrice = deliveryType === 'PICKUP' ? 0 : 
+    (totalPrice >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_COST);
+  const finalPrice = totalPrice - promoDiscount + deliveryPrice;
+  
+  // Проверка заполненности формы для активации кнопки
+  const isFormValid = 
+    formData.customerName.trim() !== '' &&
+    formData.customerPhone.trim() !== '' &&
+    deliveryDate !== '' &&
+    deliveryTime !== '' &&
+    (deliveryType === 'PICKUP' || (formData.deliveryStreet.trim() !== '' && formData.deliveryNumber.trim() !== ''));
 
   return (
     <>
@@ -237,29 +300,58 @@ export default function CartPage() {
                       <label htmlFor="customerPhone" className="block text-sm font-medium mb-1">
                         Телефон *
                       </label>
-                      <input
-                        type="tel"
-                        id="customerPhone"
-                        name="customerPhone"
-                        value={formData.customerPhone}
-                        onChange={handleChange}
-                        required
-                        placeholder="+359..."
-                        className="w-full border rounded px-3 py-2"
-                      />
+                      <div className="flex gap-2">
+                        <select
+                          value={formData.customerPhoneCountry}
+                          onChange={(e) => setFormData(prev => ({ ...prev, customerPhoneCountry: e.target.value }))}
+                          className="w-24 border rounded px-2 py-2 text-sm"
+                        >
+                          <option value="+359">🇧🇬 +359</option>
+                          <option value="+7">🇷🇺 +7</option>
+                          <option value="+380">🇺🇦 +380</option>
+                          <option value="+44">🇬🇧 +44</option>
+                          <option value="+49">🇩🇪 +49</option>
+                          <option value="+33">🇫🇷 +33</option>
+                          <option value="+39">🇮🇹 +39</option>
+                          <option value="+34">🇪🇸 +34</option>
+                        </select>
+                        <input
+                          type="tel"
+                          id="customerPhone"
+                          name="customerPhone"
+                          value={formData.customerPhone}
+                          onChange={(e) => {
+                            handleChange(e);
+                            if (phoneError) setPhoneError('');
+                          }}
+                          required
+                          placeholder="888 123 456"
+                          className={`flex-1 border rounded px-3 py-2 ${phoneError ? 'border-red-500' : ''}`}
+                        />
+                      </div>
+                      {phoneError && (
+                        <p className="text-red-500 text-sm mt-1">{phoneError}</p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="customerEmail" className="block text-sm font-medium mb-1">
-                        Email
+                        Имейл
                       </label>
                       <input
                         type="email"
                         id="customerEmail"
                         name="customerEmail"
                         value={formData.customerEmail}
-                        onChange={handleChange}
-                        className="w-full border rounded px-3 py-2"
+                        onChange={(e) => {
+                          handleChange(e);
+                          if (emailError) setEmailError('');
+                        }}
+                        placeholder="email@example.com"
+                        className={`w-full border rounded px-3 py-2 ${emailError ? 'border-red-500' : ''}`}
                       />
+                      {emailError && (
+                        <p className="text-red-500 text-sm mt-1">{emailError}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -360,20 +452,20 @@ export default function CartPage() {
                     <div className="mb-6">
                       <h3 className="font-semibold text-lg mb-3">Адрес на доставка</h3>
                       
-                      {/* Улица/Номер */}
+                      {/* Улица */}
                       <div className="mb-3">
-                        <label htmlFor="deliveryAddress" className="block text-sm font-medium mb-1">
-                          Улица и номер *
+                        <label htmlFor="deliveryStreet" className="block text-sm font-medium mb-1">
+                          Улица *
                         </label>
                         {deliveryType === 'DELIVERY' ? (
                           // Автозаполнение для доставки по Варне
                           <AddressAutocomplete
-                            value={formData.deliveryAddress}
+                            value={formData.deliveryStreet}
                             onChange={(value) => {
-                              setFormData(prev => ({ ...prev, deliveryAddress: value }));
-                              if (addressError) setAddressError(''); // Сбрасываем ошибку при вводе
+                              setFormData(prev => ({ ...prev, deliveryStreet: value }));
+                              if (addressError) setAddressError('');
                             }}
-                            placeholder="Начнете да пишете улица и номер..."
+                            placeholder="Започнете да пишете улица..."
                             required={true}
                             city="Varna"
                           />
@@ -381,27 +473,40 @@ export default function CartPage() {
                           // Обычный input для доставки по всей Болгарии
                           <input
                             type="text"
-                            id="deliveryAddress"
-                            name="deliveryAddress"
-                            value={formData.deliveryAddress}
+                            id="deliveryStreet"
+                            name="deliveryStreet"
+                            value={formData.deliveryStreet}
                             onChange={(e) => {
                               handleChange(e);
-                              if (addressError) setAddressError(''); // Сбрасываем ошибку при вводе
+                              if (addressError) setAddressError('');
                             }}
                             required={true}
-                            placeholder="Град, Улица, Номер"
+                            placeholder="Град, Улица"
                             className={`w-full border rounded px-3 py-2 ${addressError ? 'border-red-500' : ''}`}
                           />
                         )}
-                        {addressError && (
-                          <p className="text-red-500 text-sm mt-1 flex items-center">
-                            <span className="mr-1">⚠️</span> {addressError}
-                          </p>
-                        )}
                       </div>
 
-                      {/* Апартамент и Етаж */}
-                      <div className="grid grid-cols-2 gap-3">
+                      {/* Номер, Апартамент, Етаж */}
+                      <div className="grid grid-cols-3 gap-3 mb-3">
+                        <div>
+                          <label htmlFor="deliveryNumber" className="block text-sm font-medium mb-1">
+                            Номер *
+                          </label>
+                          <input
+                            type="text"
+                            id="deliveryNumber"
+                            name="deliveryNumber"
+                            value={formData.deliveryNumber}
+                            onChange={(e) => {
+                              handleChange(e);
+                              if (addressError) setAddressError('');
+                            }}
+                            placeholder="№"
+                            required
+                            className={`w-full border rounded px-3 py-2 ${addressError && !formData.deliveryNumber ? 'border-red-500' : ''}`}
+                          />
+                        </div>
                         <div>
                           <label htmlFor="apartment" className="block text-sm font-medium mb-1">
                             Апартамент
@@ -430,6 +535,53 @@ export default function CartPage() {
                             className="w-full border rounded px-3 py-2"
                           />
                         </div>
+                      </div>
+                      
+                      {addressError && (
+                        <p className="text-red-500 text-sm mt-1 flex items-center">
+                          <span className="mr-1">⚠️</span> {addressError}
+                        </p>
+                      )}
+
+                      {/* Телефон получателя */}
+                      <div className="mt-4">
+                        <label htmlFor="recipientPhone" className="block text-sm font-medium mb-1">
+                          Телефон на получателя (ако е различен)
+                        </label>
+                        <div className="flex gap-2">
+                          <select
+                            value={formData.recipientPhoneCountry}
+                            onChange={(e) => setFormData(prev => ({ ...prev, recipientPhoneCountry: e.target.value }))}
+                            className="w-24 border rounded px-2 py-2 text-sm"
+                          >
+                            <option value="+359">🇧🇬 +359</option>
+                            <option value="+7">🇷🇺 +7</option>
+                            <option value="+380">🇺🇦 +380</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+49">🇩🇪 +49</option>
+                            <option value="+33">🇫🇷 +33</option>
+                            <option value="+39">🇮🇹 +39</option>
+                            <option value="+34">🇪🇸 +34</option>
+                          </select>
+                          <input
+                            type="tel"
+                            id="recipientPhone"
+                            name="recipientPhone"
+                            value={formData.recipientPhone}
+                            onChange={(e) => {
+                              handleChange(e);
+                              if (recipientPhoneError) setRecipientPhoneError('');
+                            }}
+                            placeholder="888 123 456"
+                            className={`flex-1 border rounded px-3 py-2 ${recipientPhoneError ? 'border-red-500' : ''}`}
+                          />
+                        </div>
+                        {recipientPhoneError && (
+                          <p className="text-red-500 text-sm mt-1">{recipientPhoneError}</p>
+                        )}
+                        <p className="text-xs text-gray-500 mt-1">
+                          Оставете празно, ако получателят е същият като поръчващия
+                        </p>
                       </div>
                     </div>
                   ) : (
@@ -461,8 +613,8 @@ export default function CartPage() {
                           className="rounded-full"
                         />
                         <div className="flex-1">
-                          <p className="font-medium">Наличными в магазине</p>
-                          <p className="text-sm text-gray-500">При получении заказа</p>
+                          <p className="font-medium">В брой</p>
+                          <p className="text-sm text-gray-500">При получаване на поръчката</p>
                         </div>
                       </label>
                       <label className="flex items-center space-x-3 p-3 border rounded cursor-pointer hover:bg-gray-50 transition">
@@ -475,8 +627,8 @@ export default function CartPage() {
                           className="rounded-full"
                         />
                         <div className="flex-1">
-                          <p className="font-medium">Картой в магазине</p>
-                          <p className="text-sm text-gray-500">POS-терминал при получении</p>
+                          <p className="font-medium">С карта</p>
+                          <p className="text-sm text-gray-500">POS терминал при получаване</p>
                         </div>
                       </label>
                       <label className="flex items-center space-x-3 p-3 border rounded cursor-pointer hover:bg-gray-50 transition">
@@ -489,8 +641,8 @@ export default function CartPage() {
                           className="rounded-full"
                         />
                         <div className="flex-1">
-                          <p className="font-medium">На банковский счет</p>
-                          <p className="text-sm text-gray-500">Банковский перевод</p>
+                          <p className="font-medium">По банкова сметка</p>
+                          <p className="text-sm text-gray-500">Банков превод</p>
                         </div>
                       </label>
                     </div>
@@ -631,32 +783,43 @@ export default function CartPage() {
                     )}
                     <div className="flex justify-between text-sm">
                       <span>Доставка:</span>
-                      <span className="text-green-600">Безплатна</span>
+                      {deliveryType === 'PICKUP' ? (
+                        <span className="text-green-600">Безплатна (самовземане)</span>
+                      ) : deliveryPrice === 0 ? (
+                        <span className="text-green-600">Безплатна (над {FREE_DELIVERY_THRESHOLD} лв)</span>
+                      ) : (
+                        <div className="text-right">
+                          <div>{formatPrice(deliveryPrice)}</div>
+                          <div className="text-xs text-gray-500">
+                            Безплатна над {FREE_DELIVERY_THRESHOLD} лв
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
                   <div className="border-t pt-4 mb-4 flex-shrink-0">
                     <div className="flex justify-between font-bold text-xl">
                       <span>Общо:</span>
-                      <div className="text-primary text-right">
+                      <div className="text-accent text-right">
                         <div>{formatPrice(finalPrice)}</div>
-                        <div className="text-lg font-normal text-primary/70">{formatPriceEUR(finalPrice)}</div>
+                        <div className="text-lg font-normal text-accent/70">{formatPriceEUR(finalPrice)}</div>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex-shrink-0">
                     <button
-                    type="submit"
-                    disabled={loading || !deliveryDate || !deliveryTime}
-                    className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
+                      type="submit"
+                      disabled={loading || !isFormValid}
+                      className="w-full bg-accent text-white py-3 rounded-lg font-bold hover:bg-accent/90 transition disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-gray-400"
+                    >
                       {loading ? 'Изпращане...' : 'Оформи поръчка'}
                     </button>
 
                     <Link
                       href="/katalog"
-                      className="block text-center text-primary mt-3 hover:underline text-sm"
+                      className="block text-center text-accent mt-3 hover:underline text-sm"
                     >
                       Продължи пазаруването
                     </Link>
