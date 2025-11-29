@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import { useCartStore } from '@/lib/cart-store';
 import { publicApi } from '@/lib/api';
 import { formatPrice, formatPriceEUR } from '@/lib/utils';
@@ -38,6 +39,7 @@ export default function CheckoutPage() {
     return (
       <>
         <Header />
+        <Breadcrumbs items={[{ label: 'Количка', href: '/koshnica' }]} currentPage="Поръчка" />
         <main className="min-h-screen">
           <div className="container mx-auto px-4 py-16 text-center">
             <h1 className="text-3xl font-bold mb-4">Количката е празна</h1>
@@ -112,6 +114,7 @@ export default function CheckoutPage() {
   return (
     <>
       <Header />
+      <Breadcrumbs items={[{ label: 'Количка', href: '/koshnica' }]} currentPage="Поръчка" />
       <main className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold mb-8">Оформяне на поръчка</h1>

@@ -1,11 +1,13 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 
 export default function ContactsPage() {
   return (
     <>
       <Header />
+      <Breadcrumbs currentPage="Контакти" />
       <main className="min-h-screen">
         <div className="container mx-auto px-4 py-12">
           <h1 className="text-4xl font-bold text-center mb-12">Контакти</h1>

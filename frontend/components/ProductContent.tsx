@@ -52,7 +52,6 @@ export default function ProductContent({ product, translation }: Props) {
     product.sizeVariants && product.sizeVariants.length > 0 ? product.sizeVariants[0].id : null
   )
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
-  const [packagingColor, setPackagingColor] = useState("червен")
   const [addCard, setAddCard] = useState(false)
   const [showLightbox, setShowLightbox] = useState(false)
   const [deliveryText, setDeliveryText] = useState("")
@@ -101,7 +100,6 @@ export default function ProductContent({ product, translation }: Props) {
       options: {
         size: selectedVariant.size.translations[0]?.name || selectedVariant.size.name,
         sizeVariantId: selectedVariant.id,
-        packagingColor,
         addCard,
       },
     })
@@ -115,7 +113,7 @@ export default function ProductContent({ product, translation }: Props) {
   ]
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 pt-32 pb-16">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 pt-2 pb-16">
       {/* Left: Product Image Gallery */}
       <div className="h-[calc(100vh-12rem)] flex flex-col">
         {/* Main Image */}
@@ -292,34 +290,6 @@ export default function ProductContent({ product, translation }: Props) {
           </div>
         )}
 
-        {/* Packaging Color */}
-        <div className="mb-6">
-          <label className="block text-sm font-semibold mb-2">Цвят на опаковката:</label>
-          <select
-            value={packagingColor}
-            onChange={(e) => setPackagingColor(e.target.value)}
-            className="w-full border rounded px-4 py-2"
-          >
-            <option value="червен">Червен</option>
-            <option value="бял">Бял</option>
-            <option value="естествен">Естествен (крафт)</option>
-            <option value="прозрачен">Прозрачен</option>
-          </select>
-        </div>
-
-        {/* Add Card */}
-        <div className="mb-6">
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={addCard}
-              onChange={(e) => setAddCard(e.target.checked)}
-              className="rounded"
-            />
-            <span>Добави картичка (+5 лв)</span>
-          </label>
-        </div>
-
         {/* Quantity */}
         <div className="mb-8">
           <label className="block text-sm font-semibold mb-2">Количество:</label>
@@ -346,11 +316,24 @@ export default function ProductContent({ product, translation }: Props) {
         {/* Add to Cart Button */}
         <button
           onClick={handleAddToCart}
-          className="w-full bg-gray-100 hover:bg-gray-200 text-black py-4 mb-8 flex items-center justify-between px-6 transition text-sm tracking-wide"
+          className="w-full bg-accent hover:bg-accent/90 text-white py-4 mb-4 flex items-center justify-between px-6 transition text-sm tracking-wide"
         >
           <span>ДОБАВИ В КОЛИЧКА</span>
           <span>{formatPrice(currentPrice)}</span>
         </button>
+
+        {/* Add Card - под кнопкой */}
+        <div className="mb-8">
+          <label className="flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={addCard}
+              onChange={(e) => setAddCard(e.target.checked)}
+              className="rounded accent-accent"
+            />
+            <span className="text-sm">Добави картичка (+5 лв)</span>
+          </label>
+        </div>
 
         {/* Expandable Sections */}
         <div className="border-t border-gray-200">

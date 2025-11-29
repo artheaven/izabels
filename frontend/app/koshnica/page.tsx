@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCartStore } from '@/lib/cart-store';
@@ -158,6 +159,7 @@ export default function CartPage() {
     return (
       <>
         <Header />
+        <Breadcrumbs currentPage="Количка" />
         <main className="min-h-screen">
           <div className="container mx-auto px-4 py-16 text-center">
             <p className="text-gray-600">Зареждане...</p>
@@ -172,6 +174,7 @@ export default function CartPage() {
     return (
       <>
         <Header />
+        <Breadcrumbs currentPage="Количка" />
         <main className="min-h-screen">
           <div className="container mx-auto px-4 py-16 text-center">
             <h1 className="text-3xl font-bold mb-4">Количката е празна</h1>
@@ -197,6 +200,7 @@ export default function CartPage() {
   return (
     <>
       <Header />
+      <Breadcrumbs currentPage="Количка" />
       <main className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-3xl font-bold mb-8">Оформяне на поръчка</h1>

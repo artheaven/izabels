@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import CatalogContent from '@/components/CatalogContent';
 import { publicApi, getImageUrl } from '@/lib/api';
 import Link from 'next/link';
@@ -49,7 +50,8 @@ export default async function CatalogPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen pt-8">
+      <Breadcrumbs currentPage="Каталог" />
+      <main className="min-h-screen">
         <CatalogContent 
           initialCategories={categories} 
           initialProducts={products}
