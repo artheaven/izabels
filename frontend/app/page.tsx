@@ -3,7 +3,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { publicApi, getImageUrl } from "@/lib/api"
 import Image from "next/image"
-import { formatPriceEUR } from "@/lib/utils"
+import { formatPrice, formatPriceEUR } from "@/lib/utils"
 
 export const revalidate = 0 // Always fetch fresh data
 export const dynamic = 'force-dynamic'
@@ -25,19 +25,21 @@ export default async function HomePage() {
     <>
       <Header />
       <main>
-        {/* Hero слайдер */}
-        <section className="relative h-[700px] flex items-center justify-center">
-          {/* Background Image */}
+        {/* Hero слайдер с видео */}
+        <section className="relative h-[700px] flex items-center justify-center overflow-hidden">
+          {/* Background Video */}
           <div className="absolute inset-0 z-0">
-            <Image
-              src="/botanical-green-plants-blurred-natural-background.jpg"
-              alt="Botanical background"
-              fill
-              className="object-cover"
-              priority
-            />
-            {/* Overlay for better text readability */}
-            <div className="absolute inset-0 bg-black/20" />
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            >
+              <source src="/10536481-hd_1366_720_25fps.mp4" type="video/mp4" />
+            </video>
+            {/* Overlay 30% затемнение */}
+            <div className="absolute inset-0 bg-black/30" />
           </div>
 
           {/* Hero Content */}
@@ -102,7 +104,7 @@ export default async function HomePage() {
                       {/* Product Info */}
                       <div className="space-y-1">
                         <p className="text-xs font-medium tracking-wider uppercase text-gray-500">
-                          {product.categoryName || "Продукт"}
+                          {product.categoryName || product.category?.translations?.[0]?.name || product.category?.name || "Букети"}
                         </p>
                         <h3 className="font-normal text-base group-hover:underline">
                           {translation?.name || product.sku}
@@ -110,10 +112,11 @@ export default async function HomePage() {
                         <div className="flex items-baseline gap-2">
                           {hasDiscount && product.priceOld && (
                             <span className="text-gray-400 line-through text-sm">
-                              {formatPriceEUR(product.priceOld)}
+                              {formatPrice(product.priceOld)}
                             </span>
                           )}
-                          <span className="text-gray-900 font-medium">{formatPriceEUR(product.price)}</span>
+                          <span className="text-gray-900 font-medium">{formatPrice(product.price)}</span>
+                          <span className="text-gray-400 text-xs">{formatPriceEUR(product.price)}</span>
                         </div>
                       </div>
                     </Link>

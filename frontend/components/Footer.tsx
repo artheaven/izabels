@@ -18,11 +18,33 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Нашият магазин с картой */}
+          {/* Информация */}
           <div>
-            <h3 className="text-white font-semibold mb-6 tracking-wide text-sm">Нашият магазин</h3>
+            <h3 className="text-white font-semibold mb-6 tracking-wide text-base">Информация</h3>
+            <nav className="space-y-3">
+              <Link href="/about" className="block text-white hover:text-gray-200 transition text-base">
+                Нашата история
+              </Link>
+              <Link href="/contact" className="block text-white hover:text-gray-200 transition text-base">
+                Свържете се с нас
+              </Link>
+              <Link href="/weddings" className="block text-white hover:text-gray-200 transition text-base">
+                Сватби
+              </Link>
+              <Link href="/blog" className="block text-white hover:text-gray-200 transition text-base">
+                Блог
+              </Link>
+            </nav>
+          </div>
+
+          {/* Пустая колонка для баланса */}
+          <div className="hidden md:block"></div>
+
+          {/* Нашият магазин с картой - справа */}
+          <div className="md:text-right">
+            <h3 className="text-white font-semibold mb-6 tracking-wide text-base">Нашият магазин</h3>
             {/* Мини-карта (пока картинка-заглушка) */}
-            <div className="relative w-full h-24 mb-4 rounded overflow-hidden bg-gray-700">
+            <div className="relative w-full h-24 mb-4 rounded overflow-hidden bg-gray-700 md:ml-auto md:w-48">
               <Image 
                 src="/placeholder.jpg" 
                 alt="Карта" 
@@ -33,7 +55,7 @@ export default function Footer() {
                 <span className="text-xs text-gray-300">Google Maps</span>
               </div>
             </div>
-            <div className="space-y-3 text-gray-300 text-sm">
+            <div className="space-y-3 text-white text-base">
               <p>
                 ул. Тодор Радев Пенев 13
                 <br />
@@ -42,28 +64,6 @@ export default function Footer() {
               <p>+359 888 110 801</p>
             </div>
           </div>
-
-          {/* Информация */}
-          <div>
-            <h3 className="text-white font-semibold mb-6 tracking-wide text-sm">Информация</h3>
-            <nav className="space-y-3">
-              <Link href="/about" className="block text-gray-300 hover:text-white transition text-sm">
-                Нашата история
-              </Link>
-              <Link href="/contact" className="block text-gray-300 hover:text-white transition text-sm">
-                Свържете се с нас
-              </Link>
-              <Link href="/weddings" className="block text-gray-300 hover:text-white transition text-sm">
-                Сватби
-              </Link>
-              <Link href="/blog" className="block text-gray-300 hover:text-white transition text-sm">
-                Блог
-              </Link>
-            </nav>
-          </div>
-
-          {/* Пустая колонка для баланса */}
-          <div></div>
         </div>
       </div>
 

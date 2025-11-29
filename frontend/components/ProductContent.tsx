@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { getImageUrl } from "@/lib/api"
-import { formatPrice } from "@/lib/utils"
+import { formatPrice, formatPriceEUR } from "@/lib/utils"
 import { useCartStore } from "@/lib/cart-store"
 import { Minus, Plus, X, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
 
@@ -116,14 +116,14 @@ export default function ProductContent({ product, translation }: Props) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 pt-2 pb-16">
       {/* Left: Product Image Gallery */}
       <div className="h-[calc(100vh-12rem)] flex flex-col">
-        {/* Main Image */}
-        <div className="relative w-full flex-1 bg-gray-100 mb-4 cursor-pointer" onClick={() => setShowLightbox(true)}>
+        {/* Main Image - заполняет блок */}
+        <div className="relative w-full flex-1 bg-gray-100 mb-4 cursor-pointer overflow-hidden" onClick={() => setShowLightbox(true)}>
           {product.images[selectedImage] ? (
             <Image
               src={getImageUrl(product.images[selectedImage]) || "/placeholder.svg"}
               alt={translation.name}
               fill
-              className="object-contain"
+              className="object-cover"
               priority
             />
           ) : (
@@ -243,15 +243,19 @@ export default function ProductContent({ product, translation }: Props) {
         {/* Product Name */}
         <h1 className="text-4xl font-normal mb-4 font-serif">{translation.name}</h1>
 
-        {/* Price */}
+        {/* Price - лв + евро */}
         <div className="mb-6">
           {hasDiscount && currentPriceOld ? (
-            <div className="flex items-center space-x-3">
+            <div className="flex items-baseline space-x-3">
               <p className="text-2xl font-bold text-red-600">{formatPrice(currentPrice)}</p>
+              <p className="text-lg text-gray-400">{formatPriceEUR(currentPrice)}</p>
               <p className="text-xl text-gray-400 line-through">{formatPrice(currentPriceOld)}</p>
             </div>
           ) : (
-            <p className="text-2xl">{formatPrice(currentPrice)}</p>
+            <div className="flex items-baseline space-x-3">
+              <p className="text-2xl">{formatPrice(currentPrice)}</p>
+              <p className="text-lg text-gray-400">{formatPriceEUR(currentPrice)}</p>
+            </div>
           )}
         </div>
 
@@ -319,7 +323,7 @@ export default function ProductContent({ product, translation }: Props) {
           className="w-full bg-accent hover:bg-accent/90 text-white py-4 mb-4 flex items-center justify-between px-6 transition text-sm tracking-wide"
         >
           <span>ДОБАВИ В КОЛИЧКА</span>
-          <span>{formatPrice(currentPrice)}</span>
+          <span>{formatPrice(currentPrice)} <span className="text-white/70 text-xs ml-1">{formatPriceEUR(currentPrice)}</span></span>
         </button>
 
         {/* Add Card - под кнопкой */}

@@ -4,7 +4,7 @@ import { useState, useMemo } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { getImageUrl } from "@/lib/api"
-import { formatPrice } from "@/lib/utils"
+import { formatPrice, formatPriceEUR } from "@/lib/utils"
 import { SlidersHorizontal, X, ChevronRight } from "lucide-react"
 
 interface Product {
@@ -15,6 +15,7 @@ interface Product {
   discountPercent: number
   size: string | null
   images: string[]
+  categoryName?: string
   translations: Array<{
     name: string
     description: string | null
@@ -122,6 +123,7 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
           {filteredProducts.map((product) => {
             const translation = product.translations[0]
+            const hasDiscount = product.discountPercent > 0
 
             return (
               <Link key={product.id} href={`/produkti/${product.sku}`} className="group block">
@@ -138,10 +140,25 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
                       Няма снимка
                     </div>
                   )}
+                  {/* Бейджик скидки */}
+                  {hasDiscount && (
+                    <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                      -{product.discountPercent}%
+                    </div>
+                  )}
                 </div>
                 <div>
+                  <p className="text-xs font-medium tracking-wider uppercase text-gray-500 mb-1">
+                    {product.categoryName || "Букети"}
+                  </p>
                   <h3 className="text-base font-normal mb-1 line-clamp-2">{translation?.name || product.sku}</h3>
-                  <p className="text-sm">От {formatPrice(product.price)}</p>
+                  <div className="flex items-baseline gap-2">
+                    {hasDiscount && product.priceOld && (
+                      <span className="text-gray-400 line-through text-sm">{formatPrice(product.priceOld)}</span>
+                    )}
+                    <span className="text-gray-900 font-medium">{formatPrice(product.price)}</span>
+                    <span className="text-gray-400 text-xs">{formatPriceEUR(product.price)}</span>
+                  </div>
                 </div>
               </Link>
             )
@@ -195,28 +212,49 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
                 </div>
               </div>
 
-              {/* Category filter */}
+              {/* Category filter - подкатегории из админки */}
               <div className="border-b border-gray-200 pb-6">
                 <button className="w-full flex items-center justify-between text-left font-semibold text-lg mb-4 text-gray-900">
                   <span>Категория</span>
                   <ChevronRight className="w-5 h-5 text-gray-400" />
                 </button>
                 <div className="space-y-2">
-                  {initialCategories.map((category) => (
-                    <label
-                      key={category.id}
-                      className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
-                    >
-                      <input
-                        type="radio"
-                        name="category"
-                        checked={selectedCategory === category.slug}
-                        onChange={() => setSelectedCategory(category.slug)}
-                        className="w-4 h-4 text-accent focus:ring-accent"
-                      />
-                      <span className="text-sm text-gray-700">{category.translations[0]?.name || category.name}</span>
-                    </label>
-                  ))}
+                  {initialCategories.flatMap((category) => {
+                    // Если есть дети - показываем подкатегории
+                    if (category.children && category.children.length > 0) {
+                      return category.children.map((child) => (
+                        <label
+                          key={child.id}
+                          className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
+                        >
+                          <input
+                            type="radio"
+                            name="category"
+                            checked={selectedCategory === child.slug}
+                            onChange={() => setSelectedCategory(child.slug)}
+                            className="w-4 h-4 text-accent focus:ring-accent"
+                          />
+                          <span className="text-sm text-gray-700">{child.translations[0]?.name || child.name}</span>
+                        </label>
+                      ))
+                    }
+                    // Иначе показываем саму категорию
+                    return (
+                      <label
+                        key={category.id}
+                        className="flex items-center space-x-3 py-2 cursor-pointer hover:bg-gray-50 px-2 rounded"
+                      >
+                        <input
+                          type="radio"
+                          name="category"
+                          checked={selectedCategory === category.slug}
+                          onChange={() => setSelectedCategory(category.slug)}
+                          className="w-4 h-4 text-accent focus:ring-accent"
+                        />
+                        <span className="text-sm text-gray-700">{category.translations[0]?.name || category.name}</span>
+                      </label>
+                    )
+                  })}
                 </div>
               </div>
 
