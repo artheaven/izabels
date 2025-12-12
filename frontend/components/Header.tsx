@@ -14,13 +14,25 @@ export default function Header() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [userName, setUserName] = useState<string>("")
+  const [userEmail, setUserEmail] = useState<string>("")
+  const [userStatus, setUserStatus] = useState<string>("")
   const totalItems = useCartStore((state) => state.getTotalItems())
   const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
+    checkAuthStatus()
     
-    // Проверяем авторизацию
+    // Слушаем события изменения авторизации
+    const handleAuthChange = () => {
+      checkAuthStatus()
+    }
+    
+    window.addEventListener('auth-state-changed', handleAuthChange)
+    return () => window.removeEventListener('auth-state-changed', handleAuthChange)
+  }, [])
+  
+  const checkAuthStatus = () => {
     const token = localStorage.getItem('token')
     const userStr = localStorage.getItem('user')
     
@@ -29,17 +41,33 @@ export default function Header() {
       try {
         const user = JSON.parse(userStr)
         setUserName(user.firstName || user.email)
+        setUserEmail(user.email)
+        
+        // Статусы клиентов
+        const statusLabels: Record<string, string> = {
+          NEW: 'Нов клиент',
+          REGULAR: 'Редовен клиент',
+          LOYAL: 'Лоялен клиент',
+          VIP: 'VIP клиент',
+        }
+        setUserStatus(statusLabels[user.customerStatus || 'NEW'] || 'Нов клиент')
       } catch (e) {
         console.error('Error parsing user:', e)
       }
+    } else {
+      setIsLoggedIn(false)
+      setUserName('')
+      setUserEmail('')
+      setUserStatus('')
     }
-  }, [])
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('user')
     setIsLoggedIn(false)
     setUserMenuOpen(false)
+    window.dispatchEvent(new Event('auth-state-changed'))
     router.push('/')
   }
 
@@ -158,9 +186,17 @@ export default function Header() {
 
                 {/* Dropdown Menu */}
                 {mounted && userMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg py-2 z-50">
                     {isLoggedIn ? (
                       <>
+                        {/* User Info */}
+                        <div className="px-4 py-3 border-b border-gray-200">
+                          <p className="text-sm font-semibold text-gray-900">{userName}</p>
+                          <p className="text-xs text-gray-600 mt-0.5">{userEmail}</p>
+                          <p className="text-xs text-pink-600 font-medium mt-1">{userStatus}</p>
+                        </div>
+                        
+                        {/* Menu Items */}
                         <Link
                           href="/profil"
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -168,9 +204,16 @@ export default function Header() {
                         >
                           Профил
                         </Link>
+                        <Link
+                          href="/moite-poruchki"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          История заказов
+                        </Link>
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-200 mt-1 pt-2"
                         >
                           <LogOut className="w-4 h-4" />
                           Изход

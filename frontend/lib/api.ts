@@ -13,9 +13,9 @@ export const api = axios.create({
 // Добавляем токен к запросам (для админки и пользователей)
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    // Приоритет: admin_token для админских запросов, user_token для пользовательских
+    // Приоритет: admin_token для админских запросов, token для пользовательских
     const adminToken = localStorage.getItem('admin_token');
-    const userToken = localStorage.getItem('user_token');
+    const userToken = localStorage.getItem('token');
     
     if (config.url?.includes('/admin/') && adminToken) {
       config.headers.Authorization = `Bearer ${adminToken}`;
@@ -106,6 +106,16 @@ export const authApi = {
   // Сброс пароля
   resetPassword: (token: string, password: string) =>
     api.post(`/api/auth/reset-password/${token}`, { password }),
+};
+
+// === Заказы пользователя ===
+
+export const userApi = {
+  // Получить свои заказы
+  getMyOrders: () => api.get('/api/user/orders'),
+
+  // Получить заказ по ID
+  getMyOrderById: (id: number) => api.get(`/api/user/orders/${id}`),
 };
 
 // === Адреса пользователей ===
@@ -234,7 +244,7 @@ export const adminApi = {
     api.delete(`/api/admin/bouquet-sizes/${id}`),
 
   // Заказы
-  getOrders: (params?: { status?: string; from?: string; to?: string; orderType?: string }) =>
+  getOrders: (params?: { status?: string; from?: string; to?: string; orderType?: string; userId?: number }) =>
     api.get('/api/admin/orders', { params }),
 
   getOrderById: (id: number) =>

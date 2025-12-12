@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import { generateVerificationToken, generateResetToken } from '../../utils/tokenGenerator';
-import { sendVerificationEmail, sendResetPasswordEmail } from '../../utils/emailService';
+import { sendVerificationEmail, sendResetPasswordEmail, sendWelcomeEmail } from '../../utils/emailService';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
@@ -44,6 +44,11 @@ export const register = async (req: Request, res: Response) => {
       },
     });
 
+    // Отправка welcome email (асинхронно, не блокируем ответ)
+    sendWelcomeEmail(user.email, user.firstName).catch(err =>
+      console.error('Error sending welcome email:', err)
+    );
+
     // Генерация JWT токена
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
@@ -62,6 +67,7 @@ export const register = async (req: Request, res: Response) => {
         lastName: user.lastName,
         phone: user.phone,
         role: user.role,
+        customerStatus: user.customerStatus,
       },
     });
   } catch (error) {

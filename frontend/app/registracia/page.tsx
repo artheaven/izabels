@@ -49,6 +49,9 @@ export default function RegisterPage() {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         
+        // Dispatch event для обновления хедера
+        window.dispatchEvent(new Event('auth-state-changed'));
+        
         // Перенаправляем в профиль
         router.push('/profil');
       }

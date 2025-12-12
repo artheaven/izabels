@@ -22,8 +22,12 @@ export default function LoginPage() {
     try {
       const response = await authApi.login(formData.email, formData.password);
 
-      // Запазваме токен
-      localStorage.setItem('user_token', response.data.token);
+      // Запазваме токен и данные пользователя
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Dispatch event для обновления хедера
+      window.dispatchEvent(new Event('auth-state-changed'));
       
       // Пренасочваме към главна страница или профил
       router.push('/');

@@ -216,6 +216,124 @@ export const sendResetPasswordEmail = async (email: string, token: string): Prom
 };
 
 /**
+ * Отправка welcome письма при регистрации
+ */
+export const sendWelcomeEmail = async (email: string, firstName: string): Promise<void> => {
+  const msg = {
+    to: email,
+    from: FROM_EMAIL,
+    subject: 'Добре дошли в Izabels Flower! 🌸',
+    text: `Здравейте ${firstName},\n\nДобре дошли в Izabels Flower!\n\nБлагодарим ви, че се регистрирахте в нашия магазин. Радваме се да бъдем част от вашите специални моменти.\n\nКакво можете да направите:\n• Разгледайте нашия каталог с над 100 уникални букети\n• Поръчайте с доставка в Варна и региона\n• Проследявайте вашите поръчки в реално време\n• Получавайте специални оферти и отстъпки\n\nНашият работен график: 10:00 - 19:00, 7 дни в седмицата\n\nАко имате въпроси, не се колебайте да се свържете с нас!\n\nПоздрави,\nЕкипът на Izabels Flower\n+359888110801\ninfo@izabelsflower.com`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f7f7f7;">
+        <table role="presentation" style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 40px 0; text-align: center;">
+              <table role="presentation" style="width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <!-- Header -->
+                <tr>
+                  <td style="padding: 40px 40px 20px; text-align: center; background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); border-radius: 8px 8px 0 0;">
+                    <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: bold;">
+                      Добре дошли! 🌸
+                    </h1>
+                  </td>
+                </tr>
+                
+                <!-- Body -->
+                <tr>
+                  <td style="padding: 40px;">
+                    <h2 style="margin: 0 0 20px; color: #1f2937; font-size: 24px;">
+                      Здравейте ${firstName},
+                    </h2>
+                    <p style="margin: 0 0 20px; color: #4b5563; font-size: 16px; line-height: 1.6;">
+                      Благодарим ви, че се регистрирахте в <strong>Izabels Flower</strong>! 
+                      Радваме се да бъдем част от вашите специални моменти.
+                    </p>
+                    
+                    <!-- Features -->
+                    <div style="background-color: #fdf2f8; border-radius: 8px; padding: 24px; margin: 24px 0;">
+                      <h3 style="margin: 0 0 16px; color: #be185d; font-size: 18px;">
+                        Какво можете да направите:
+                      </h3>
+                      <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
+                        <li style="margin-bottom: 8px;">Разгледайте нашия каталог с над 100 уникални букети</li>
+                        <li style="margin-bottom: 8px;">Поръчайте с доставка в Варна и региона</li>
+                        <li style="margin-bottom: 8px;">Проследявайте вашите поръчки в реално време</li>
+                        <li style="margin-bottom: 0;">Получавайте специални оферти и отстъпки</li>
+                      </ul>
+                    </div>
+                    
+                    <!-- Button -->
+                    <table role="presentation" style="margin: 30px auto;">
+                      <tr>
+                        <td style="border-radius: 6px; background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
+                          <a href="${FRONTEND_URL}/katalog" target="_blank" style="display: inline-block; padding: 16px 40px; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; border-radius: 6px;">
+                            Разгледайте каталога
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <!-- Info -->
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                      <p style="margin: 0 0 10px; color: #4b5563; font-size: 14px;">
+                        <strong>Работно време:</strong> 10:00 - 19:00, 7 дни в седмицата
+                      </p>
+                      <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">
+                        Ако имате въпроси, не се колебайте да се свържете с нас!
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+                
+                <!-- Footer -->
+                <tr>
+                  <td style="padding: 30px 40px; background-color: #f9fafb; border-radius: 0 0 8px 8px; text-align: center;">
+                    <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px;">
+                      <strong>Izabels Flower</strong><br>
+                      ул. Тодор Радев Пенев 13, Варна<br>
+                      +359888110801 | info@izabelsflower.com
+                    </p>
+                    <p style="margin: 10px 0 0; color: #9ca3af; font-size: 12px;">
+                      <a href="https://www.instagram.com/izabelsflower/" style="color: #ec4899; text-decoration: none; margin: 0 5px;">Instagram</a> |
+                      <a href="https://www.facebook.com/p/Izabels-Flower-61579199182101/" style="color: #ec4899; text-decoration: none; margin: 0 5px;">Facebook</a> |
+                      <a href="https://www.tiktok.com/@izabelsflower" style="color: #ec4899; text-decoration: none; margin: 0 5px;">TikTok</a>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `,
+  };
+
+  if (SENDGRID_API_KEY) {
+    try {
+      await sgMail.send(msg);
+      console.log(`✅ Welcome email sent to ${email}`);
+    } catch (error: any) {
+      console.error('❌ SendGrid error:', error.response?.body || error.message);
+      throw error;
+    }
+  } else {
+    // Fallback: логируем в консоль
+    console.log('=== EMAIL: Welcome ===');
+    console.log(`To: ${email}`);
+    console.log(`Subject: Добре дошли в Izabels Flower!`);
+    console.log('======================');
+  }
+};
+
+/**
  * Отправка письма с подтверждением заказа
  */
 export const sendOrderConfirmationEmail = async (

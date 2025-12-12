@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
  */
 export const getAllOrders = async (req: AuthRequest, res: Response) => {
   try {
-    const { status, from, to, orderType } = req.query;
+    const { status, from, to, orderType, userId } = req.query;
 
     const where: any = {};
 
@@ -20,6 +20,10 @@ export const getAllOrders = async (req: AuthRequest, res: Response) => {
 
     if (orderType) {
       where.orderType = orderType;
+    }
+
+    if (userId) {
+      where.userId = parseInt(userId as string);
     }
 
     if (from || to) {
@@ -35,7 +39,20 @@ export const getAllOrders = async (req: AuthRequest, res: Response) => {
     const orders = await prisma.order.findMany({
       where,
       include: {
-        items: true,
+        items: {
+          include: {
+            bouquet: {
+              select: {
+                sku: true,
+                images: true,
+                translations: {
+                  where: { language: 'bg' },
+                  select: { name: true },
+                },
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });

@@ -15,6 +15,7 @@ import publicRoutes from './routes/public';
 import authRoutes from './routes/auth';
 import addressRoutes from './routes/addresses';
 import webhookRoutes from './routes/webhooks';
+import userRoutes from './routes/user';
 
 const app: Application = express();
 const PORT = process.env.PORT || 5001;
@@ -47,6 +48,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Роуты
 app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api', publicRoutes);
