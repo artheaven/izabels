@@ -70,6 +70,9 @@ interface OrderItem {
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).userId; // Может быть undefined для гостей
+    
+    console.log('📝 Creating order with body:', JSON.stringify(req.body, null, 2));
+    
     const {
       customerName,
       customerPhone,
@@ -85,6 +88,9 @@ export const createOrder = async (req: Request, res: Response) => {
       deliveryPrice = 0,
       promoCode, // Промокод (опционально)
     } = req.body;
+    
+    console.log('📦 Order items:', items);
+    console.log('👤 User ID:', userId);
 
     // Валидация
     if (!customerName || !customerPhone || !items || items.length === 0) {
@@ -270,9 +276,16 @@ export const createOrder = async (req: Request, res: Response) => {
         }
       },
     });
-  } catch (error) {
-    console.error('Ошибка при создании заказа:', error);
-    res.status(500).json({ error: 'Ошибка при создании заказа' });
+  } catch (error: any) {
+    console.error('❌ Ошибка при создании заказа:', error);
+    console.error('Error stack:', error.stack);
+    console.error('Error message:', error.message);
+    console.error('Request body:', JSON.stringify(req.body, null, 2));
+    
+    res.status(500).json({ 
+      error: 'Ошибка при создании заказа',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
