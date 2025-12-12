@@ -21,6 +21,22 @@ export default function CartPage() {
   // Предотвращаем ошибку гидратации
   useEffect(() => {
     setMounted(true);
+    
+    // Автозаполнение данных пользователя если залогинен
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setFormData(prev => ({
+          ...prev,
+          customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+          customerPhone: user.phone || '',
+          customerEmail: user.email || '',
+        }));
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+      }
+    }
   }, []);
   
   // Форма заказа
