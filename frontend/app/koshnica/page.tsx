@@ -345,7 +345,26 @@ export default function CartPage() {
     formData.customerPhone.trim() !== '' &&
     deliveryDate !== '' &&
     deliveryTime !== '' &&
+    phoneError === '' &&
+    emailError === '' &&
+    recipientPhoneError === '' &&
     (deliveryType === 'PICKUP' || (formData.deliveryStreet.trim() !== '' && formData.deliveryNumber.trim() !== ''));
+  
+  // Debug: показываем причину неактивности кнопки
+  if (typeof window !== 'undefined' && mounted) {
+    const validationState = {
+      customerName: formData.customerName.trim() !== '',
+      customerPhone: formData.customerPhone.trim() !== '',
+      deliveryDate: deliveryDate !== '',
+      deliveryTime: deliveryTime !== '',
+      phoneError: phoneError === '',
+      emailError: emailError === '',
+      recipientPhoneError: recipientPhoneError === '',
+      address: deliveryType === 'PICKUP' || (formData.deliveryStreet.trim() !== '' && formData.deliveryNumber.trim() !== ''),
+      isValid: isFormValid,
+    };
+    console.log('Form validation:', validationState);
+  }
 
   return (
     <>
