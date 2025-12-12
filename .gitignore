@@ -46,7 +46,7 @@ public/uploads/
 prisma/migrations/
 
 # Documentation (local only)
-seo/
+/seo/
 
 # Misc
 *.pem
