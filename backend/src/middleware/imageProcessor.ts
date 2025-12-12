@@ -11,6 +11,8 @@ export const processImage = async (
   folder: string = 'bouquets'
 ): Promise<string> => {
   try {
+    logger.info(`Processing image: ${file.originalname} (${file.size} bytes) -> ${folder}`);
+    
     // Загружаем в Cloudinary (он сам оптимизирует)
     const result = await uploadToCloudinary(file.path, folder);
     
@@ -19,15 +21,25 @@ export const processImage = async (
       fs.unlinkSync(file.path);
     }
     
+    logger.info(`✅ Image processed: ${result.url}`);
+    
     // Возвращаем полный URL от Cloudinary
     return result.url;
-  } catch (error) {
+  } catch (error: any) {
     // Удаляем временный файл при ошибке
     if (fs.existsSync(file.path)) {
       fs.unlinkSync(file.path);
     }
-    logger.error('Ошибка при обработке изображения:', error);
-    throw error;
+    
+    logger.error('❌ Failed to process image:', {
+      file: file.originalname,
+      size: file.size,
+      folder,
+      error: error.message,
+      stack: error.stack,
+    });
+    
+    throw new Error(`Failed to upload image ${file.originalname}: ${error.message}`);
   }
 };
 

@@ -82,12 +82,45 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
+// Проверка конфигурации при старте
+function checkConfiguration() {
+  logger.info('=== Проверка конфигурации ===');
+  
+  // Cloudinary
+  const cloudinaryConfigured = !!(
+    process.env.CLOUDINARY_URL || 
+    (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET)
+  );
+  if (cloudinaryConfigured) {
+    logger.info('✅ Cloudinary: настроен');
+  } else {
+    logger.warn('⚠️  Cloudinary: НЕ настроен - загрузка изображений не работает!');
+  }
+  
+  // SendGrid
+  if (process.env.SENDGRID_API_KEY) {
+    logger.info('✅ SendGrid: настроен');
+  } else {
+    logger.warn('⚠️  SendGrid: НЕ настроен - email будут логироваться в консоль');
+  }
+  
+  // Database
+  if (process.env.DATABASE_URL) {
+    logger.info('✅ Database: настроен');
+  } else {
+    logger.error('❌ Database: НЕ настроен!');
+  }
+  
+  logger.info('============================');
+}
+
 // Запуск сервера
 app.listen(Number(PORT), HOST, () => {
   logger.info(`🚀 Сервер запущен на ${HOST}:${PORT}`);
   logger.info(`📝 Окружение: ${process.env.NODE_ENV || 'development'}`);
   logger.info(`🌐 API доступен по адресу: http://localhost:${PORT}`);
   logger.info(`🔗 CORS разрешен для: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  checkConfiguration();
 });
 
 export default app;
