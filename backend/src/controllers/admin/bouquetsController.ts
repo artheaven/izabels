@@ -348,11 +348,16 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
     // Обрабатываем новые изображения
     let newImages: string[] = [];
     if (req.files && Array.isArray(req.files)) {
+      console.log(`Processing ${req.files.length} new images for bouquet ${id}`);
       newImages = await processImages(req.files);
+      console.log(`New images uploaded:`, newImages);
     }
 
     const existingImagesArray = existingImages ? JSON.parse(existingImages) : bouquet.images;
     const allImages = [...existingImagesArray, ...newImages];
+    
+    console.log(`Total images for bouquet ${id}:`, allImages.length);
+    console.log(`Images array:`, allImages);
 
     // Парсим варианты размеров
     let sizeVariantsData = [];
@@ -373,13 +378,15 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
     });
 
     // Обновляем букет
-    await prisma.bouquet.update({
+    const updatedBouquetData = await prisma.bouquet.update({
       where: { id: parseInt(id) },
       data: {
         ...(categoryId && { categoryId: parseInt(categoryId) }),
         images: allImages,
       },
     });
+    
+    console.log(`✅ Bouquet ${id} updated with images:`, updatedBouquetData.images);
 
     // Создаем новые варианты размеров с их составом
     for (const variant of sizeVariantsData) {
