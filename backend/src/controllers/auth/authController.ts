@@ -53,25 +53,13 @@ export const register = async (req: Request, res: Response) => {
       console.error('Error sending verification email:', err)
     );
 
-    // Генерация JWT токена
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
+    // НЕ даем JWT токен до подтверждения email
+    // Пользователь должен подтвердить email сначала
     res.json({
       success: true,
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phone: user.phone,
-        customerStatus: user.customerStatus,
-        emailVerified: user.emailVerified,
-      },
+      message: 'Регистрация успешна. Проверьте ваш email для подтверждения',
+      requiresVerification: true,
+      email: user.email,
     });
   } catch (error) {
     console.error('Ошибка при регистрации:', error);
@@ -218,7 +206,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Неверный или истекший токен' });
     }
 
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
         emailVerified: true,
@@ -226,9 +214,72 @@ export const verifyEmail = async (req: Request, res: Response) => {
       },
     });
 
-    res.json({ success: true, message: 'Email подтвержден' });
+    // После подтверждения выдаем JWT токен
+    const jwtToken = jwt.sign(
+      { userId: updatedUser.id, email: updatedUser.email },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Email подтвержден',
+      token: jwtToken,
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        phone: updatedUser.phone,
+        customerStatus: updatedUser.customerStatus,
+        emailVerified: true,
+      },
+    });
   } catch (error) {
     console.error('Ошибка при подтверждении email:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+};
+
+/**
+ * Повторная отправка кода верификации
+ * POST /api/auth/resend-verification
+ */
+export const resendVerification = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ error: 'Email уже подтвержден' });
+    }
+
+    // Генерируем новый токен
+    const verificationToken = generateVerificationToken();
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { verificationToken },
+    });
+
+    // Отправляем email
+    sendVerificationEmail(user.email, verificationToken).catch(err =>
+      console.error('Error sending verification email:', err)
+    );
+
+    res.json({ 
+      success: true, 
+      message: 'Код подтверждения отправлен на ваш email' 
+    });
+  } catch (error) {
+    console.error('Ошибка при повторной отправке кода:', error);
     res.status(500).json({ error: 'Ошибка сервера' });
   }
 };

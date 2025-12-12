@@ -95,6 +95,10 @@ export const authApi = {
   verifyEmail: (token: string) =>
     api.post(`/api/auth/verify-email/${token}`),
 
+  // Повторная отправка кода верификации
+  resendVerificationCode: (email: string) =>
+    api.post('/api/auth/resend-verification', { email }),
+
   // Запрос сброса пароля
   forgotPassword: (email: string) =>
     api.post('/api/auth/forgot-password', { email }),
