@@ -480,9 +480,11 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
     }
 
     // Триггерим revalidation кеша на фронтенде
-    triggerRevalidation('product', { sku: updatedBouquet.sku }).catch(err => 
-      console.error('Failed to trigger revalidation:', err)
-    );
+    if (updatedBouquet) {
+      triggerRevalidation('product', { sku: updatedBouquet.sku }).catch(err => 
+        console.error('Failed to trigger revalidation:', err)
+      );
+    }
 
     res.json({ bouquet: updatedBouquet });
   } catch (error) {

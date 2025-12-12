@@ -35,11 +35,11 @@ router.post('/revalidate', authenticateToken, async (req: Request, res: Response
       });
     }
 
-    const result = await response.json();
+    const result = await response.json() as Record<string, any>;
     res.json({ 
       success: true, 
       message: 'Cache revalidated successfully',
-      ...result 
+      ...(typeof result === 'object' && result !== null ? result : {})
     });
 
   } catch (error) {
