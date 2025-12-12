@@ -1,12 +1,24 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { publicApi, getImageUrl } from "@/lib/api"
 import Image from "next/image"
 import { formatPrice, formatPriceEUR } from "@/lib/utils"
+import { 
+  generateOrganizationSchema, 
+  generateWebSiteSchema,
+  generateJsonLd 
+} from "@/lib/structured-data"
+import { generateHomeMetadata } from "@/lib/metadata/templates"
 
-export const revalidate = 0 // Always fetch fresh data
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600 // ISR: обновлять каждый час
+export const dynamic = 'force-static'
+
+// Генерация metadata для главной
+export async function generateMetadata(): Promise<Metadata> {
+  return generateHomeMetadata('bg');
+}
 
 async function getFeaturedProducts() {
   try {
@@ -21,8 +33,22 @@ async function getFeaturedProducts() {
 export default async function HomePage() {
   const featuredProducts = await getFeaturedProducts()
 
+  // Генерируем structured data для главной
+  const organizationSchema = generateOrganizationSchema()
+  const websiteSchema = generateWebSiteSchema()
+
   return (
     <>
+      {/* Structured Data (JSON-LD) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={generateJsonLd(organizationSchema)}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={generateJsonLd(websiteSchema)}
+      />
+      
       <Header />
       <main>
         {/* Hero слайдер с видео */}
@@ -34,6 +60,8 @@ export default async function HomePage() {
               muted
               loop
               playsInline
+              preload="metadata"
+              poster="/dark-moody-romantic-red-roses-bouquet-on-black-bac.jpg"
               className="w-full h-full object-cover"
             >
               <source src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_a5xiow1MxOPXnm6VYN2RD4wsnnAa/Y39TNeXx-poekYyRWUl-zO/public/10536481-hd_1366_720_25fps.mp4" type="video/mp4" />
@@ -85,8 +113,9 @@ export default async function HomePage() {
                         {product.images[0] ? (
                           <Image
                             src={getImageUrl(product.images[0]) || "/placeholder.svg"}
-                            alt={translation?.name || product.sku}
+                            alt={`${translation?.name || product.sku} - свеж букет с доставка`}
                             fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
@@ -135,8 +164,10 @@ export default async function HomePage() {
               <Link href="/katalog/buketi" className="group relative h-[500px] rounded-lg overflow-hidden">
                 <Image
                   src="/dark-moody-romantic-red-roses-bouquet-on-black-bac.jpg"
-                  alt="Букети"
+                  alt="Букети - свежи цветя с доставка във Варна"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
@@ -152,8 +183,10 @@ export default async function HomePage() {
               <Link href="/katalog/cveta-v-saksiya" className="group relative h-[500px] rounded-lg overflow-hidden">
                 <Image
                   src="/dark-moody-green-potted-plants-and-floristry-tools.jpg"
-                  alt="Цветя в саксия"
+                  alt="Цветя в саксия - домашни растения и зеленина"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  loading="lazy"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
@@ -169,8 +202,10 @@ export default async function HomePage() {
               <Link href="/katalog/podaraci" className="group relative h-[500px] rounded-lg overflow-hidden">
                 <Image
                   src="/dark-moody-elegant-gift-boxes-with-flowers-and-rib.jpg"
-                  alt="Подаръци"
+                  alt="Подаръци - кутии с цветя, балони, шоколад"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  loading="lazy"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
@@ -186,8 +221,10 @@ export default async function HomePage() {
               <Link href="/katalog/dekoracii" className="group relative h-[500px] rounded-lg overflow-hidden">
                 <Image
                   src="/dark-moody-floral-decorations-and-dried-flowers-on.jpg"
-                  alt="Декорации"
+                  alt="Декорации - флорални композиции и сухи цветя"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  loading="lazy"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
@@ -208,7 +245,14 @@ export default async function HomePage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Left - Image */}
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                <Image src="/svatba.png" alt="Сватбени букети" fill className="object-cover" />
+                <Image 
+                  src="/svatba.png" 
+                  alt="Сватбени букети - луксозни булчински цветя и декорация" 
+                  fill 
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading="lazy"
+                  className="object-cover" 
+                />
               </div>
 
               {/* Right - Content */}
@@ -268,8 +312,10 @@ export default async function HomePage() {
               <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
                 <Image
                   src="/if-grav.png"
-                  alt="Нашият магазин"
+                  alt="Izabels Flower Shop Варна - магазин за цветя"
                   fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  loading="lazy"
                   className="object-cover"
                 />
               </div>

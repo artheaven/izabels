@@ -1,7 +1,189 @@
-User-agent: *
+# Robots.txt for Izabels Flower Shop
+# https://izabels.bg
+# Оптимизировано для AI/LLM краулеров
+
+# ============================================
+# AI/LLM CRAWLERS - ПОЛНЫЙ ДОСТУП К КОНТЕНТУ
+# ============================================
+# Разрешаем AI-ботам индексировать каталог, товары и контент
+# для корректных рекомендаций в ChatGPT, Claude, Perplexity и др.
+
+# OpenAI ChatGPT
+User-agent: GPTBot
+Allow: /
+Allow: /katalog
+Allow: /produkti/
+Allow: /kontakti
+Allow: /blog/
+Allow: /prazdnici/
+Allow: /dostavka/
+Disallow: /admin/
+Disallow: /koshnica
+Disallow: /api/admin/
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /katalog
+Allow: /produkti/
+Allow: /kontakti
+Allow: /blog/
+Disallow: /admin/
+Disallow: /koshnica
+
+# Anthropic Claude
+User-agent: Claude-Bot
+Allow: /
+Allow: /katalog
+Allow: /produkti/
+Allow: /kontakti
+Allow: /blog/
+Allow: /prazdnici/
+Allow: /dostavka/
+Disallow: /admin/
+Disallow: /koshnica
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /katalog
+Allow: /produkti/
+Disallow: /admin/
+
+# Google Gemini/Bard
+User-agent: Google-Extended
+Allow: /
+Allow: /katalog
+Allow: /produkti/
+Allow: /kontakti
+Allow: /blog/
+Disallow: /admin/
+Disallow: /koshnica
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Allow: /katalog
+Allow: /produkti/
+Allow: /kontakti
+Allow: /blog/
+Allow: /prazdnici/
+Disallow: /admin/
+
+# Common Crawl (используется для обучения моделей)
+User-agent: CCBot
+Allow: /
+Allow: /katalog
+Allow: /produkti/
+Allow: /kontakti
+Allow: /blog/
+Disallow: /admin/
+Disallow: /api/admin/
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+Allow: /katalog
+Allow: /produkti/
+Disallow: /admin/
+
+# ============================================
+# СТАНДАРТНЫЕ ПОИСКОВЫЕ БОТЫ
+# ============================================
+
+# Google
+User-agent: Googlebot
 Allow: /
 Disallow: /admin/
 Disallow: /koshnica
 Disallow: /porachka
+Disallow: /profil
+Disallow: /vhod
+Disallow: /registracia
+Disallow: /api/
+# Запрет индексации фильтров и параметров пагинации
+Disallow: /*?*sort=
+Disallow: /*?*page=
+Disallow: /*?*limit=
+Disallow: /*&*sort=
+Disallow: /*&*page=
+Disallow: /*&*limit=
+# Allow важные фильтры (будут иметь canonical)
+Allow: /katalog?category=*
+Allow: /katalog?size=*
 
-Sitemap: https://yourdomain.com/sitemap.xml
+# Googlebot-Image (для изображений)
+User-agent: Googlebot-Image
+Allow: /
+Disallow: /admin/
+
+# Bing & Microsoft Copilot
+User-agent: Bingbot
+Allow: /
+Allow: /katalog
+Allow: /produkti/
+Allow: /kontakti
+Disallow: /admin/
+Disallow: /koshnica
+Disallow: /porachka
+Disallow: /*?*sort=
+Disallow: /*?*page=
+
+# Yandex (важен для русскоязычных пользователей)
+User-agent: Yandex
+Allow: /
+Allow: /ru/
+Disallow: /admin/
+Disallow: /koshnica
+Disallow: /*?*sort=
+Disallow: /*?*page=
+
+# ============================================
+# ВСЕ ОСТАЛЬНЫЕ БОТЫ
+# ============================================
+User-agent: *
+Allow: /
+# Admin panel
+Disallow: /admin/
+# User flows (cart, checkout, profile)
+Disallow: /koshnica
+Disallow: /porachka
+Disallow: /profil
+Disallow: /vhod
+Disallow: /registracia
+# API endpoints
+Disallow: /api/
+
+# Запрет индексации фильтров и параметров пагинации
+Disallow: /*?*sort=
+Disallow: /*?*page=
+Disallow: /*?*limit=
+Disallow: /*&*sort=
+Disallow: /*&*page=
+Disallow: /*&*limit=
+
+# Allow важные фильтры (будут иметь canonical)
+Allow: /katalog?category=*
+Allow: /katalog?size=*
+
+# ============================================
+# SITEMAPS
+# ============================================
+Sitemap: https://izabels.bg/sitemap.xml
+Sitemap: https://izabels.bg/sitemap-pages.xml
+Sitemap: https://izabels.bg/sitemap-products.xml
+Sitemap: https://izabels.bg/sitemap-images.xml
+
+# ============================================
+# ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ ДЛЯ AI
+# ============================================
+# Структурированные данные о бизнесе находятся на:
+# - Главная: / (Organization + LocalBusiness schema)
+# - Каталог: /katalog (Product listings)
+# - Товары: /produkti/* (Product + Offer schema с ценами BGN)
+# - Контакты: /kontakti (NAP, карта, часы работы)
+# - Блог: /blog/* (статьи о цветах, праздниках, уходе)
+#
+# Основные услуги:
+# - Доставка цветов в Варна, София, Пловдив, Бургас
+# - Букеты на все случаи: свадьбы, дни рождения, праздники
+# - Сезонные предложения: Цветница, 8 Марта, Баба Марта, День знаний
+# - Корпоративные заказы и оформление мероприятий

@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { AuthRequest } from '../../middleware/auth';
+import { triggerRevalidation } from '../../utils/revalidation';
 
 const prisma = new PrismaClient();
 
@@ -112,6 +113,11 @@ export const createCategory = async (req: AuthRequest, res: Response) => {
       },
     });
 
+    // Триггерим revalidation (новая категория = обновление каталога и sitemap)
+    triggerRevalidation('category').catch(err => 
+      console.error('Failed to trigger revalidation:', err)
+    );
+
     res.status(201).json({ category });
   } catch (error) {
     console.error('Ошибка при создании категории:', error);
@@ -185,6 +191,11 @@ export const updateCategory = async (req: AuthRequest, res: Response) => {
         },
       });
     }
+
+    // Триггерим revalidation (обновление категории = обновление каталога)
+    triggerRevalidation('category').catch(err => 
+      console.error('Failed to trigger revalidation:', err)
+    );
 
     res.json({ category });
   } catch (error) {

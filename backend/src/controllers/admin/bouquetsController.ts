@@ -4,6 +4,7 @@ import { AuthRequest } from '../../middleware/auth';
 import { generateSKU } from '../../utils/skuGenerator';
 import { processImages } from '../../middleware/imageProcessor';
 import { deleteFile } from '../../middleware/upload';
+import { triggerRevalidation } from '../../utils/revalidation';
 
 const prisma = new PrismaClient();
 
@@ -306,6 +307,11 @@ export const createBouquet = async (req: AuthRequest, res: Response) => {
       },
     });
 
+    // Триггерим revalidation кеша на фронтенде
+    triggerRevalidation('product', { sku: bouquet.sku }).catch(err => 
+      console.error('Failed to trigger revalidation:', err)
+    );
+
     res.status(201).json({ bouquet: createdBouquet });
   } catch (error) {
     console.error('Ошибка при создании букета:', error);
@@ -472,6 +478,11 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
         },
       });
     }
+
+    // Триггерим revalidation кеша на фронтенде
+    triggerRevalidation('product', { sku: updatedBouquet.sku }).catch(err => 
+      console.error('Failed to trigger revalidation:', err)
+    );
 
     res.json({ bouquet: updatedBouquet });
   } catch (error) {

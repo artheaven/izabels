@@ -14,6 +14,7 @@ import adminRoutes from './routes/admin';
 import publicRoutes from './routes/public';
 import authRoutes from './routes/auth';
 import addressRoutes from './routes/addresses';
+import webhookRoutes from './routes/webhooks';
 
 const app: Application = express();
 const PORT = process.env.PORT || 5001;
@@ -47,6 +48,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/addresses', addressRoutes);
+app.use('/api/webhooks', webhookRoutes);
 app.use('/api', publicRoutes);
 
 // Базовый роут

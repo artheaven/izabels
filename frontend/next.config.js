@@ -2,23 +2,29 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      // Cloudinary - основное хранилище изображений
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
-        pathname: '/**',
+        pathname: '/dzz7w2rrt/**',
       },
-      // Legacy: локальная разработка
       {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '5001',
-        pathname: '/uploads/**',
+        protocol: 'https',
+        hostname: 'hebbkx1anhila5yf.public.blob.vercel-storage.com',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 дней
   },
-  // Включаем standalone для оптимизации деплоя
-  output: 'standalone',
-}
+  // Оптимизация для production
+  swcMinify: true,
+  poweredByHeader: false,
+  compress: true,
+  // Experimental features для производительности
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

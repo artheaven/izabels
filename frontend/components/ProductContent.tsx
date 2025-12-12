@@ -122,8 +122,9 @@ export default function ProductContent({ product, translation, categoryName }: P
           {product.images[selectedImage] ? (
             <Image
               src={getImageUrl(product.images[selectedImage]) || "/placeholder.svg"}
-              alt={translation.name}
+              alt={`${translation.name} - свеж букет с доставка във Варна, цена ${currentPrice.toFixed(2)} лв`}
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
               priority
             />
@@ -145,8 +146,10 @@ export default function ProductContent({ product, translation, categoryName }: P
               >
                 <Image
                   src={getImageUrl(image) || "/placeholder.svg"}
-                  alt={`${translation.name} ${index + 1}`}
+                  alt={`${translation.name} снимка ${index + 1}`}
                   fill
+                  sizes="80px"
+                  loading="lazy"
                   className="object-cover"
                 />
               </button>
@@ -202,10 +205,11 @@ export default function ProductContent({ product, translation, categoryName }: P
               <div className="relative w-full h-full flex items-center justify-center">
                 <Image
                   src={getImageUrl(product.images[selectedImage]) || "/placeholder.svg"}
-                  alt={translation.name}
+                  alt={`${translation.name} пълен изглед`}
                   fill
                   className="object-contain"
                   sizes="100vw"
+                  quality={95}
                 />
               </div>
             </div>

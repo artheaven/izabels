@@ -33,11 +33,11 @@ export default function Footer() {
                   +359 888 110 801
                 </a>
                 <a
-                  href="mailto:info@izabels.bg"
+                  href="mailto:info@izabelsflower.com"
                   className="flex items-center gap-2 hover:text-white transition"
                 >
                   <Mail className="w-4 h-4 flex-shrink-0" />
-                  info@izabels.bg
+                  info@izabelsflower.com
                 </a>
               </div>
             </div>
@@ -84,7 +84,7 @@ export default function Footer() {
             {/* Правый нижний угол - соцсети */}
             <div className="flex space-x-4 mt-4 md:mt-0">
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/izabelsflower/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition"
@@ -93,7 +93,7 @@ export default function Footer() {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/p/Izabels-Flower-61579199182101/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition"

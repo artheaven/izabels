@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Playfair_Display, IBM_Plex_Mono } from "next/font/google"
 import "./globals.css"
+import { baseMetadata } from "@/lib/metadata/templates"
 
 const playfair = Playfair_Display({
   subsets: ["latin", "cyrillic"],
@@ -18,10 +19,22 @@ const ibmPlexMono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Izabels - Магазин за цветя и подаръци",
-  description: "Свежи букети и подаръци с доставка в София",
-    generator: 'v0.app'
+  ...baseMetadata,
+  title: {
+    default: "Izabels Flower Shop — Доставка на цветя във Варна",
+    template: "%s | Izabels Flower Shop",
+  },
+  description: "Професионален магазин за цветя във Варна. Доставка на свежи букети, цветя в саксия и подаръци в цяла България. Експресна доставка за 2-4 часа.",
+  icons: {
+    icon: [
+      { url: '/icon-light-32x32.png', media: '(prefers-color-scheme: light)' },
+      { url: '/icon-dark-32x32.png', media: '(prefers-color-scheme: dark)' },
+    ],
+    apple: '/apple-icon.png',
+  },
 }
+
+import { WebVitals } from './web-vitals'
 
 export default function RootLayout({
   children,
@@ -30,7 +43,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="bg" className={`${playfair.variable} ${ibmPlexMono.variable}`}>
-      <body className="font-mono bg-background text-foreground">{children}</body>
+      <head>
+        {/* Preconnect для критичных доменов */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className="font-mono bg-background text-foreground">
+        <WebVitals />
+        {children}
+      </body>
     </html>
   )
 }

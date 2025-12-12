@@ -4,6 +4,7 @@ import { AuthRequest } from '../../middleware/auth';
 import { generateSKU } from '../../utils/skuGenerator';
 import { processImages } from '../../middleware/imageProcessor';
 import { deleteFile } from '../../middleware/upload';
+import { triggerRevalidation } from '../../utils/revalidation';
 
 const prisma = new PrismaClient();
 
@@ -125,6 +126,11 @@ export const createFlower = async (req: AuthRequest, res: Response) => {
         category: true,
       },
     });
+
+    // Триггерим revalidation (цветы влияют на букеты)
+    triggerRevalidation('category').catch(err => 
+      console.error('Failed to trigger revalidation:', err)
+    );
 
     res.status(201).json({ flower });
   } catch (error) {

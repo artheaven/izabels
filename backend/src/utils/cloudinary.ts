@@ -38,9 +38,12 @@ export const uploadToCloudinary = async (
       resource_type: 'image',
       transformation: [
         { width: 1200, height: 1200, crop: 'limit' }, // Ограничиваем размер
-        { quality: 'auto:good' }, // Автоматическое качество
-        { fetch_format: 'auto' }, // WebP где поддерживается
+        { quality: 'auto:best' }, // Лучшее автоматическое качество
+        { fetch_format: 'auto' }, // AVIF > WebP > JPEG автоматически
       ],
+      // Дополнительные настройки для оптимизации
+      format: 'auto', // Автоматический выбор формата
+      flags: ['progressive'], // Progressive JPEG
     });
 
     logger.info(`Uploaded to Cloudinary: ${result.public_id}`);

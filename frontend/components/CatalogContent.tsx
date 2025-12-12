@@ -133,8 +133,10 @@ export default function CatalogContent({ initialCategories, initialProducts, fea
                   {product.images[0] ? (
                     <Image
                       src={getImageUrl(product.images[0]) || "/placeholder.svg"}
-                      alt={translation?.name || product.sku}
+                      alt={`${translation?.name || product.sku} - ${product.price} лв с доставка`}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      loading="lazy"
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
