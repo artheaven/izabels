@@ -34,6 +34,22 @@ export default function CartPage() {
   useEffect(() => {
     setMounted(true);
     
+    // Устанавливаем дату и время по умолчанию
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    // Если сейчас после 17:00 (магазин закрывается в 19:00, нужно минимум 2 часа)
+    // то доставка возможна только завтра
+    let defaultDate = new Date();
+    if (currentHour >= 17) {
+      defaultDate.setDate(defaultDate.getDate() + 1);
+    }
+    
+    setDeliveryDate(defaultDate.toISOString().split('T')[0]);
+    
+    // Вычисляем доступные слоты времени
+    updateAvailableTimeSlots(defaultDate);
+    
     // Автозаполнение данных пользователя если залогинен
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
@@ -42,10 +58,18 @@ export default function CartPage() {
       setIsLoggedIn(true);
       try {
         const user = JSON.parse(userStr);
+        // Убираем код страны из телефона если он есть
+        let phone = user.phone || '';
+        if (phone.startsWith('+359')) {
+          phone = phone.substring(4);
+        } else if (phone.startsWith('359')) {
+          phone = phone.substring(3);
+        }
+        
         setFormData(prev => ({
           ...prev,
           customerName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-          customerPhone: user.phone || '',
+          customerPhone: phone,
           customerEmail: user.email || '',
         }));
         
@@ -56,6 +80,43 @@ export default function CartPage() {
       }
     }
   }, []);
+  
+  // Обновляем доступные слоты времени при изменении даты
+  useEffect(() => {
+    if (deliveryDate) {
+      const selectedDate = new Date(deliveryDate + 'T00:00:00');
+      updateAvailableTimeSlots(selectedDate);
+    }
+  }, [deliveryDate]);
+  
+  const updateAvailableTimeSlots = (date: Date) => {
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    const currentHour = now.getHours();
+    
+    // Генерируем слоты с 12:00 до 19:00 (магазин закрывается в 19:00)
+    const slots: string[] = [];
+    const startHour = 12;
+    const endHour = 19;
+    
+    for (let hour = startHour; hour <= endHour; hour++) {
+      // Если это сегодня, показываем только слоты минимум через 2 часа
+      if (isToday) {
+        if (hour >= currentHour + 2) {
+          slots.push(`${hour.toString().padStart(2, '0')}:00`);
+        }
+      } else {
+        slots.push(`${hour.toString().padStart(2, '0')}:00`);
+      }
+    }
+    
+    setAvailableTimeSlots(slots);
+    
+    // Если текущий выбранный слот недоступен, сбрасываем
+    if (deliveryTime && !slots.includes(deliveryTime)) {
+      setDeliveryTime('');
+    }
+  };
   
   const loadSavedAddresses = async () => {
     try {
@@ -133,6 +194,7 @@ export default function CartPage() {
   const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'DELIVERY_BULGARIA' | 'PICKUP'>('DELIVERY');
   const [deliveryDate, setDeliveryDate] = useState('');
   const [deliveryTime, setDeliveryTime] = useState('');
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'bank'>('cash');
   const [promoCode, setPromoCode] = useState('');
   const [promoDiscount, setPromoDiscount] = useState(0);
@@ -258,9 +320,9 @@ export default function CartPage() {
 
       const orderData = {
         customerName: formData.customerName,
-        customerPhone: `${formData.customerPhoneCountry}${formData.customerPhone}`,
+        customerPhone: `${formData.customerPhoneCountry}${formData.customerPhone.replace(/^(\+359|359)/, '')}`,
         customerEmail: formData.customerEmail || undefined,
-        recipientPhone: formData.recipientPhone ? `${formData.recipientPhoneCountry}${formData.recipientPhone}` : undefined,
+        recipientPhone: formData.recipientPhone ? `${formData.recipientPhoneCountry}${formData.recipientPhone.replace(/^(\+359|359)/, '')}` : undefined,
         deliveryAddress: deliveryType === 'PICKUP' ? 'Самовземане - ул. Тодор Радев Пенев 13, Варна' : fullAddress,
         deliveryType: deliveryType,
         deliveryDate: deliveryDate || null,
@@ -545,11 +607,15 @@ export default function CartPage() {
                         className="w-full border rounded px-3 py-2 cursor-pointer"
                       >
                         <option value="">Изберете време</option>
-                        <option value="09:00-12:00">09:00 - 12:00</option>
-                        <option value="12:00-15:00">12:00 - 15:00</option>
-                        <option value="15:00-18:00">15:00 - 18:00</option>
-                        <option value="18:00-21:00">18:00 - 21:00</option>
+                        {availableTimeSlots.map(slot => (
+                          <option key={slot} value={slot}>{slot}</option>
+                        ))}
                       </select>
+                      {availableTimeSlots.length === 0 && deliveryDate && (
+                        <p className="text-xs text-red-600 mt-1">
+                          Няма налични слотове за тази дата
+                        </p>
+                      )}
                     </div>
                   </div>
 
