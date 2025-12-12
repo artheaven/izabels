@@ -110,17 +110,30 @@ export default async function HomePage() {
                     <Link key={product.id} href={`/produkti/${product.sku}`} className="group">
                       {/* Product Image - Smaller aspect ratio */}
                       <div className="relative aspect-[3/4] bg-gray-100 rounded-lg overflow-hidden mb-4">
-                        {product.images[0] ? (
+                        {product.images && product.images.length > 0 && product.images[0] ? (
                           <Image
-                            src={getImageUrl(product.images[0]) || "/placeholder.svg"}
+                            src={getImageUrl(product.images[0])}
                             alt={`${translation?.name || product.sku} - свеж букет с доставка`}
                             fill
                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            Няма снимка
+                          <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
+                            <Image
+                              src="/pink-flower-bouquet-in-vase.jpg"
+                              alt="Placeholder"
+                              fill
+                              className="object-cover opacity-40"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-center">
+                                <svg className="mx-auto h-16 w-16 text-pink-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p className="text-sm text-gray-600 font-medium">{translation?.name || 'Букет'}</p>
+                              </div>
+                            </div>
                           </div>
                         )}
                         {hasDiscount && (
