@@ -77,7 +77,7 @@ export default function ProfilePage() {
   const handleSendVerification = async () => {
     try {
       setVerificationError('');
-      await authApi.resendVerificationEmail(user!.email);
+      await authApi.resendVerificationCode(user!.email);
       setVerificationSent(true);
     } catch (err: any) {
       setVerificationError(err.response?.data?.error || 'Грешка при изпращане на код');
