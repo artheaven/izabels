@@ -196,12 +196,6 @@ export default function CartPage() {
   const [deliveryTime, setDeliveryTime] = useState('');
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'bank'>('cash');
-  const [promoCode, setPromoCode] = useState('');
-  const [promoDiscount, setPromoDiscount] = useState(0);
-  const [promoError, setPromoError] = useState('');
-  const [addressError, setAddressError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return;
