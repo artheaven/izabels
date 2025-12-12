@@ -35,7 +35,7 @@ export function generateHomeBreadcrumbs(): BreadcrumbList {
  * Генерация breadcrumbs для каталога
  */
 export function generateCatalogBreadcrumbs(categoryName?: string): BreadcrumbList {
-  const items = [
+  const items: Array<{ label: string; href?: string }> = [
     { label: 'Начало', href: '/' },
     { label: 'Каталог', href: '/katalog' },
   ];
