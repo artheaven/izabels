@@ -323,9 +323,17 @@ export const adminApi = {
 // Утилита для получения URL изображения
 export const getImageUrl = (path: string) => {
   if (!path) return '/placeholder.jpg';
+  
   // Cloudinary или другие внешние URL - возвращаем как есть
-  if (path.startsWith('http')) return path;
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+  
+  // Относительные пути к публичным файлам
+  if (path.startsWith('/')) {
+    return path;
+  }
+  
   // Legacy локальные пути - fallback на placeholder
-  // (старые данные до миграции на Cloudinary)
   return '/placeholder.jpg';
 };
