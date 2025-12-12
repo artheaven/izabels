@@ -355,7 +355,17 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
     const allImages = [...existingImagesArray, ...newImages];
 
     // Парсим варианты размеров
-    const sizeVariantsData = sizeVariants ? JSON.parse(sizeVariants) : [];
+    let sizeVariantsData = [];
+    try {
+      sizeVariantsData = sizeVariants ? JSON.parse(sizeVariants) : [];
+    } catch (parseError) {
+      console.error('Error parsing sizeVariants:', parseError);
+      return res.status(400).json({ error: 'Некорректные данные размеров' });
+    }
+
+    if (!sizeVariantsData || sizeVariantsData.length === 0) {
+      return res.status(400).json({ error: 'Выберите хотя бы один размер' });
+    }
 
     // Удаляем старые варианты размеров (каскадно удалятся flowers и materials)
     await prisma.bouquetSizeVariant.deleteMany({
@@ -373,6 +383,10 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
 
     // Создаем новые варианты размеров с их составом
     for (const variant of sizeVariantsData) {
+      if (!variant.sizeId) {
+        console.error('Missing sizeId in variant:', variant);
+        continue;
+      }
       const variantFlowers = variant.flowers || [];
       const variantMaterials = variant.materials || [];
       const priceBase = await calculateBouquetPrice(variantFlowers, variantMaterials);
@@ -487,8 +501,17 @@ export const updateBouquet = async (req: AuthRequest, res: Response) => {
     }
 
     res.json({ bouquet: updatedBouquet });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Ошибка при обновлении букета:', error);
+    
+    // Более детальная информация об ошибке
+    const errorMessage = error.message || 'Ошибка при обновлении букета';
+    const errorDetails = error.code ? ` (${error.code})` : '';
+    
+    res.status(500).json({ 
+      error: errorMessage + errorDetails,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
     res.status(500).json({ error: 'Ошибка при обновлении букета' });
   }
 };
