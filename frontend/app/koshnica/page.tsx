@@ -29,6 +29,38 @@ export default function CartPage() {
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // Форма заказа
+  const [formData, setFormData] = useState({
+    customerName: '',
+    customerPhone: '',
+    customerPhoneCountry: '+359',
+    customerEmail: '',
+    deliveryStreet: '',
+    deliveryNumber: '',
+    apartment: '',
+    floor: '',
+    recipientPhone: '',
+    recipientPhoneCountry: '+359',
+    comment: '',
+  });
+  
+  // Валидация полей
+  const [phoneError, setPhoneError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [recipientPhoneError, setRecipientPhoneError] = useState('');
+  
+  const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'DELIVERY_BULGARIA' | 'PICKUP'>('DELIVERY');
+  const [deliveryDate, setDeliveryDate] = useState('');
+  const [deliveryTime, setDeliveryTime] = useState('');
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'bank'>('cash');
+  const [promoCode, setPromoCode] = useState('');
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoError, setPromoError] = useState('');
+  const [addressError, setAddressError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   // Предотвращаем ошибку гидратации и загружаем данные
   useEffect(() => {
