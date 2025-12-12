@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { noIndexMetadata } from '@/lib/metadata/templates';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   ...noIndexMetadata,
@@ -12,6 +14,14 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <Header />
+      <main className="min-h-screen bg-gray-50">
+        {children}
+      </main>
+      <Footer />
+    </>
+  );
 }
 

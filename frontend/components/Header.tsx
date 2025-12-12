@@ -16,6 +16,7 @@ export default function Header() {
   const [userName, setUserName] = useState<string>("")
   const [userEmail, setUserEmail] = useState<string>("")
   const [userStatus, setUserStatus] = useState<string>("")
+  const [userTotalOrders, setUserTotalOrders] = useState<number>(0)
   const totalItems = useCartStore((state) => state.getTotalItems())
   const router = useRouter()
 
@@ -42,6 +43,7 @@ export default function Header() {
         const user = JSON.parse(userStr)
         setUserName(user.firstName || user.email)
         setUserEmail(user.email)
+        setUserTotalOrders(user.totalOrders || 0)
         
         // Статусы клиентов
         const statusLabels: Record<string, string> = {
@@ -59,6 +61,7 @@ export default function Header() {
       setUserName('')
       setUserEmail('')
       setUserStatus('')
+      setUserTotalOrders(0)
     }
   }
 
@@ -204,13 +207,23 @@ export default function Header() {
                         >
                           Профил
                         </Link>
-                        <Link
-                          href="/moite-poruchki"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          История заказов
-                        </Link>
+                        {userTotalOrders > 0 ? (
+                          <Link
+                            href="/moite-poruchki"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => setUserMenuOpen(false)}
+                          >
+                            Моите поръчки
+                          </Link>
+                        ) : (
+                          <button
+                            disabled
+                            className="w-full text-left px-4 py-2 text-sm text-gray-400 cursor-not-allowed"
+                            title="Все още нямате поръчки"
+                          >
+                            Моите поръчки
+                          </button>
+                        )}
                         <button
                           onClick={handleLogout}
                           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-200 mt-1 pt-2"
@@ -226,7 +239,7 @@ export default function Header() {
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                           onClick={() => setUserMenuOpen(false)}
                         >
-                          Вход
+                          Вход в профил
                         </Link>
                         <Link
                           href="/registracia"
@@ -280,6 +293,19 @@ export default function Header() {
                     >
                       Профил ({userName})
                     </Link>
+                    {userTotalOrders > 0 ? (
+                      <Link
+                        href="/moite-poruchki"
+                        className="block text-white hover:text-gray-200 transition mb-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Моите поръчки
+                      </Link>
+                    ) : (
+                      <span className="block text-gray-400 mb-2 cursor-not-allowed">
+                        Моите поръчки
+                      </span>
+                    )}
                     <button
                       onClick={() => {
                         handleLogout()
@@ -297,7 +323,7 @@ export default function Header() {
                       className="block text-white hover:text-gray-200 transition mb-2"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Вход
+                      Вход в профил
                     </Link>
                     <Link
                       href="/registracia"

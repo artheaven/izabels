@@ -38,6 +38,10 @@ export default function ProfilePage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState('');
 
   useEffect(() => {
     loadData();
@@ -66,7 +70,50 @@ export default function ProfilePage() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    window.dispatchEvent(new Event('auth-state-changed'));
     router.push('/');
+  };
+
+  const handleSendVerification = async () => {
+    try {
+      setVerificationError('');
+      await authApi.resendVerificationEmail(user!.email);
+      setVerificationSent(true);
+    } catch (err: any) {
+      setVerificationError(err.response?.data?.error || 'Грешка при изпращане на код');
+    }
+  };
+
+  const handleVerifyEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!verificationCode.trim()) {
+      setVerificationError('Въведете код');
+      return;
+    }
+
+    setVerifying(true);
+    setVerificationError('');
+
+    try {
+      await authApi.verifyEmail(verificationCode);
+      
+      // Обновяем данные пользователя
+      const userRes = await authApi.getMe();
+      setUser(userRes.data.user);
+      
+      // Обновляем localStorage
+      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      storedUser.emailVerified = true;
+      localStorage.setItem('user', JSON.stringify(storedUser));
+      window.dispatchEvent(new Event('auth-state-changed'));
+      
+      setVerificationSent(false);
+      setVerificationCode('');
+    } catch (err: any) {
+      setVerificationError(err.response?.data?.error || 'Невалиден код');
+    } finally {
+      setVerifying(false);
+    }
   };
 
   if (loading) {
@@ -113,7 +160,48 @@ export default function ProfilePage() {
                 <label className="text-sm text-gray-600">Имейл</label>
                 <p className="font-medium">{user.email}</p>
                 {!user.emailVerified && (
-                  <p className="text-sm text-yellow-600">Email не е потвърден</p>
+                  <div className="mt-2">
+                    <p className="text-sm text-yellow-600 mb-2">Email не е потвърден</p>
+                    {!verificationSent ? (
+                      <button
+                        onClick={handleSendVerification}
+                        className="text-sm px-3 py-1 bg-pink-600 text-white rounded hover:bg-pink-700"
+                      >
+                        Изпрати код за потвърждение
+                      </button>
+                    ) : (
+                      <form onSubmit={handleVerifyEmail} className="space-y-2">
+                        <p className="text-sm text-green-600">Код изпратен на {user.email}</p>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={verificationCode}
+                            onChange={(e) => setVerificationCode(e.target.value)}
+                            placeholder="Въведете код"
+                            className="px-3 py-1 border border-gray-300 rounded text-sm"
+                            disabled={verifying}
+                          />
+                          <button
+                            type="submit"
+                            disabled={verifying}
+                            className="px-3 py-1 bg-pink-600 text-white rounded hover:bg-pink-700 text-sm disabled:opacity-50"
+                          >
+                            {verifying ? 'Проверка...' : 'Потвърди'}
+                          </button>
+                        </div>
+                        {verificationError && (
+                          <p className="text-sm text-red-600">{verificationError}</p>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleSendVerification}
+                          className="text-sm text-pink-600 hover:text-pink-700"
+                        >
+                          Изпрати код отново
+                        </button>
+                      </form>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -201,12 +289,22 @@ export default function ProfilePage() {
             <h2 className="text-xl font-semibold mb-4">Бързи връзки</h2>
             
             <div className="space-y-2">
-              <a
-                href="/moite-poruchki"
-                className="block px-4 py-2 text-center bg-gray-100 hover:bg-gray-200 rounded-md"
-              >
-                Моите поръчки
-              </a>
+              {user.totalOrders > 0 ? (
+                <a
+                  href="/moite-poruchki"
+                  className="block px-4 py-2 text-center bg-gray-100 hover:bg-gray-200 rounded-md"
+                >
+                  Моите поръчки
+                </a>
+              ) : (
+                <button
+                  disabled
+                  className="block w-full px-4 py-2 text-center bg-gray-100 text-gray-400 rounded-md cursor-not-allowed"
+                  title="Все още нямате поръчки"
+                >
+                  Моите поръчки
+                </button>
+              )}
               <a
                 href="/katalog"
                 className="block px-4 py-2 text-center bg-gray-100 hover:bg-gray-200 rounded-md"
