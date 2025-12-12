@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "prisma migrate deploy && node dist/server.js",
+    "start": "prisma migrate resolve --applied 20251129140000_make_delivery_fields_optional && prisma migrate deploy && node dist/server.js",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
