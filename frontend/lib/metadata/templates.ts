@@ -191,7 +191,7 @@ export function generateProductMetadata(product: {
       },
     },
     openGraph: {
-      type: 'product',
+      type: 'website', // Next.js Metadata API doesn't support 'product' type
       locale: locale === 'bg' ? 'bg_BG' : locale === 'en' ? 'en_US' : 'ru_RU',
       url: productUrl,
       siteName: SITE_NAME,
