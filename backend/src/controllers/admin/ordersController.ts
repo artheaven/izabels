@@ -39,25 +39,40 @@ export const getAllOrders = async (req: AuthRequest, res: Response) => {
     const orders = await prisma.order.findMany({
       where,
       include: {
-        items: {
-          include: {
-            bouquet: {
-              select: {
-                sku: true,
-                images: true,
-                translations: {
-                  where: { language: 'bg' },
-                  select: { name: true },
-                },
-              },
-            },
-          },
-        },
+        items: true,
       },
       orderBy: { createdAt: 'desc' },
     });
+    
+    // Обогащаем данные о товарах
+    const enrichedOrders = await Promise.all(orders.map(async (order) => {
+      const enrichedItems = await Promise.all(order.items.map(async (item) => {
+        let bouquet = null;
+        if (item.itemType === 'bouquet' && item.itemId) {
+          bouquet = await prisma.bouquet.findUnique({
+            where: { id: item.itemId },
+            select: {
+              sku: true,
+              images: true,
+              translations: {
+                where: { language: 'bg' },
+                select: { name: true },
+              },
+            },
+          });
+        }
+        return {
+          ...item,
+          bouquet,
+        };
+      }));
+      return {
+        ...order,
+        items: enrichedItems,
+      };
+    }));
 
-    res.json({ orders });
+    res.json({ orders: enrichedOrders });
   } catch (error) {
     console.error('Ошибка при получении заказов:', error);
     res.status(500).json({ error: 'Ошибка при получении заказов' });

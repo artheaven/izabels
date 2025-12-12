@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { authenticateUser } from '../middleware/auth';
+import { authenticateToken } from '../middleware/auth';
 import * as ordersController from '../controllers/user/ordersController';
 
 const router = Router();
 
 // Все роуты требуют аутентификации
-router.use(authenticateUser);
+router.use(authenticateToken);
 
 // === Заказы пользователя ===
 router.get('/orders', ordersController.getMyOrders);

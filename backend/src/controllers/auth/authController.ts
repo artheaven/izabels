@@ -51,7 +51,7 @@ export const register = async (req: Request, res: Response) => {
 
     // Генерация JWT токена
     const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
+      { userId: user.id, email: user.email },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -63,11 +63,13 @@ export const register = async (req: Request, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phone: user.phone,
-        role: user.role,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        phone: user.phone || '',
         customerStatus: user.customerStatus,
+        totalOrders: user.totalOrders,
+        totalSpent: parseFloat(user.totalSpent.toString()),
+        emailVerified: user.emailVerified,
       },
     });
   } catch (error) {
