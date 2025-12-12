@@ -1,20 +1,47 @@
 "use client"
 
 import Link from "next/link"
-import { ShoppingCart, Menu, X, Search, User } from "lucide-react"
+import { ShoppingCart, Menu, X, Search, User, LogOut } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useCartStore } from "@/lib/cart-store"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [megaMenuOpen, setMegaMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userName, setUserName] = useState<string>("")
   const totalItems = useCartStore((state) => state.getTotalItems())
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
+    
+    // Проверяем авторизацию
+    const token = localStorage.getItem('token')
+    const userStr = localStorage.getItem('user')
+    
+    if (token && userStr) {
+      setIsLoggedIn(true)
+      try {
+        const user = JSON.parse(userStr)
+        setUserName(user.firstName || user.email)
+      } catch (e) {
+        console.error('Error parsing user:', e)
+      }
+    }
   }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    setIsLoggedIn(false)
+    setUserMenuOpen(false)
+    router.push('/')
+  }
 
   const navLinks = [
     { href: "/katalog", label: "Цветя", hasMegaMenu: true },
@@ -116,9 +143,61 @@ export default function Header() {
               <button className="hidden lg:block p-2 text-white hover:text-gray-200 transition">
                 <Search className="w-5 h-5" />
               </button>
-              <button className="hidden lg:block p-2 text-white hover:text-gray-200 transition">
-                <User className="w-5 h-5" />
-              </button>
+              
+              {/* User Menu */}
+              <div className="hidden lg:block relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="p-2 text-white hover:text-gray-200 transition flex items-center gap-2"
+                >
+                  <User className="w-5 h-5" />
+                  {mounted && isLoggedIn && userName && (
+                    <span className="text-sm">{userName}</span>
+                  )}
+                </button>
+
+                {/* Dropdown Menu */}
+                {mounted && userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    {isLoggedIn ? (
+                      <>
+                        <Link
+                          href="/profil"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          Профил
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Изход
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          href="/vhod"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          Вход
+                        </Link>
+                        <Link
+                          href="/registracia"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          Регистрация
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+              
               <Link href="/koshnica" className="relative p-2 text-white hover:text-gray-200 transition">
                 <ShoppingCart className="w-5 h-5" />
                 {mounted && totalItems > 0 && (
@@ -146,6 +225,47 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
+              
+              {/* Mobile User Menu */}
+              <div className="pt-4 mt-4 border-t border-white/20">
+                {mounted && isLoggedIn ? (
+                  <>
+                    <Link
+                      href="/profil"
+                      className="block text-white hover:text-gray-200 transition mb-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Профил ({userName})
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout()
+                        setMobileMenuOpen(false)
+                      }}
+                      className="block text-white hover:text-gray-200 transition"
+                    >
+                      Изход
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/vhod"
+                      className="block text-white hover:text-gray-200 transition mb-2"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Вход
+                    </Link>
+                    <Link
+                      href="/registracia"
+                      className="block text-white hover:text-gray-200 transition"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Регистрация
+                    </Link>
+                  </>
+                )}
+              </div>
             </nav>
           )}
         </div>
