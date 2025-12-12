@@ -203,32 +203,6 @@ export default function CartPage() {
     setAddressError('');
   };
   
-  // Форма заказа
-  const [formData, setFormData] = useState({
-    customerName: '',
-    customerPhone: '',
-    customerPhoneCountry: '+359', // Болгария по умолчанию
-    customerEmail: '',
-    deliveryStreet: '',
-    deliveryNumber: '',
-    apartment: '',
-    floor: '',
-    recipientPhone: '',
-    recipientPhoneCountry: '+359',
-    comment: '',
-  });
-  
-  // Валидация полей
-  const [phoneError, setPhoneError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [recipientPhoneError, setRecipientPhoneError] = useState('');
-  
-  const [deliveryType, setDeliveryType] = useState<'DELIVERY' | 'DELIVERY_BULGARIA' | 'PICKUP'>('DELIVERY');
-  const [deliveryDate, setDeliveryDate] = useState('');
-  const [deliveryTime, setDeliveryTime] = useState('');
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'bank'>('cash');
-
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return;
     
