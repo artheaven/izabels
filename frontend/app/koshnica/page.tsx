@@ -8,23 +8,38 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCartStore } from '@/lib/cart-store';
-import { getImageUrl, publicApi } from '@/lib/api';
+import { getImageUrl, publicApi, addressApi } from '@/lib/api';
 import { formatPrice, formatPriceEUR } from '@/lib/utils';
 import { Trash2, Plus, Minus, MapPin } from 'lucide-react';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
+
+interface SavedAddress {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  postalCode?: string;
+  isDefault: boolean;
+}
 
 export default function CartPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const { items, updateQuantity, removeItem, clearCart, getTotalPrice } = useCartStore();
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // Предотвращаем ошибку гидратации
+  // Предотвращаем ошибку гидратации и загружаем данные
   useEffect(() => {
     setMounted(true);
     
     // Автозаполнение данных пользователя если залогинен
+    const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
-    if (userStr) {
+    
+    if (token && userStr) {
+      setIsLoggedIn(true);
       try {
         const user = JSON.parse(userStr);
         setFormData(prev => ({
@@ -33,11 +48,67 @@ export default function CartPage() {
           customerPhone: user.phone || '',
           customerEmail: user.email || '',
         }));
+        
+        // Загружаем сохраненные адреса
+        loadSavedAddresses();
       } catch (e) {
         console.error('Error parsing user data:', e);
       }
     }
   }, []);
+  
+  const loadSavedAddresses = async () => {
+    try {
+      const response = await addressApi.getAddresses();
+      setSavedAddresses(response.data.addresses);
+      
+      // Автоматически выбираем адрес по умолчанию
+      const defaultAddress = response.data.addresses.find((addr: SavedAddress) => addr.isDefault);
+      if (defaultAddress) {
+        handleSelectAddress(defaultAddress.id);
+      }
+    } catch (error) {
+      console.error('Error loading addresses:', error);
+    }
+  };
+  
+  const handleSelectAddress = (addressId: number) => {
+    const address = savedAddresses.find(addr => addr.id === addressId);
+    if (!address) return;
+    
+    setSelectedAddressId(addressId);
+    
+    // Парсим адрес (формат: "улица номер, Апт. X, Ет. Y")
+    const addressParts = address.address.split(',').map(p => p.trim());
+    const streetAndNumber = addressParts[0] || '';
+    
+    // Разделяем улицу и номер
+    const lastSpaceIndex = streetAndNumber.lastIndexOf(' ');
+    const street = lastSpaceIndex > 0 ? streetAndNumber.substring(0, lastSpaceIndex) : streetAndNumber;
+    const number = lastSpaceIndex > 0 ? streetAndNumber.substring(lastSpaceIndex + 1) : '';
+    
+    // Ищем квартиру и этаж
+    let apartment = '';
+    let floor = '';
+    
+    for (const part of addressParts.slice(1)) {
+      if (part.startsWith('Апт.')) {
+        apartment = part.replace('Апт.', '').trim();
+      } else if (part.startsWith('Ет.')) {
+        floor = part.replace('Ет.', '').trim();
+      }
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      deliveryStreet: street,
+      deliveryNumber: number,
+      apartment: apartment,
+      floor: floor,
+    }));
+    
+    setAddressError('');
+  };
   
   // Форма заказа
   const [formData, setFormData] = useState({
