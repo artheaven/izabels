@@ -185,7 +185,8 @@ export const getFeaturedProducts = async (req: Request, res: Response) => {
   try {
     const { lang = 'bg' } = req.query;
 
-    const featuredProducts = await prisma.bouquet.findMany({
+    // Сначала пробуем получить отмеченные как Featured
+    let featuredProducts = await prisma.bouquet.findMany({
       where: {
         isActive: true,
         isFeatured: true,
@@ -215,7 +216,43 @@ export const getFeaturedProducts = async (req: Request, res: Response) => {
       orderBy: {
         featuredOrder: 'asc',
       },
+      take: 8,
     });
+
+    // Если нет featured товаров, показываем последние добавленные
+    if (featuredProducts.length === 0) {
+      featuredProducts = await prisma.bouquet.findMany({
+        where: {
+          isActive: true,
+        },
+        include: {
+          category: true,
+          translations: {
+            where: { lang: lang as string },
+          },
+          sizeVariants: {
+            include: {
+              size: {
+                include: {
+                  translations: {
+                    where: { lang: lang as string },
+                  },
+                },
+              },
+            },
+            orderBy: {
+              size: {
+                order: 'asc',
+              },
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 8,
+      });
+    }
 
     // Для каждого букета находим минимальную цену
     const productsWithPrices = featuredProducts.map(bouquet => {
