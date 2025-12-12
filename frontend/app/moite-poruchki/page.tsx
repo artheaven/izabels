@@ -145,7 +145,7 @@ export default function OrdersPage() {
                   <div>
                     <p className="text-sm text-gray-600">Сума</p>
                     <p className="font-bold text-lg text-pink-600">
-                      {order.totalAmount.toFixed(2)} лв.
+                      {Number(order.totalAmount).toFixed(2)} лв.
                     </p>
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export default function OrdersPage() {
                       </div>
 
                       <div className="text-right">
-                        <p className="font-medium">{item.price.toFixed(2)} лв.</p>
+                        <p className="font-medium">{Number(item.price).toFixed(2)} лв.</p>
                       </div>
                     </div>
                   ))}

@@ -339,6 +339,21 @@ export default function CartPage() {
 
       if (response.data.success) {
         clearCart();
+        
+        // Обновляем totalOrders в localStorage для Header
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const user = JSON.parse(userStr);
+            user.totalOrders = (user.totalOrders || 0) + 1;
+            localStorage.setItem('user', JSON.stringify(user));
+            // Триггерим событие для обновления Header
+            window.dispatchEvent(new Event('auth-state-changed'));
+          } catch (e) {
+            console.error('Error updating user totalOrders:', e);
+          }
+        }
+        
         router.push(`/porachka/uspeshna/${response.data.order.orderNumber}`);
       }
     } catch (err: any) {
