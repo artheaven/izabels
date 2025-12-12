@@ -33,9 +33,6 @@ export const register = async (req: Request, res: Response) => {
     // Хеширование пароля
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Генерация токена подтверждения email
-    const verificationToken = generateVerificationToken();
-
     // Создание пользователя
     const user = await prisma.user.create({
       data: {
@@ -44,22 +41,28 @@ export const register = async (req: Request, res: Response) => {
         firstName,
         lastName,
         phone,
-        verificationToken,
       },
     });
 
-    // Отправка письма подтверждения (асинхронно)
-    sendVerificationEmail(user.email, verificationToken).catch(err =>
-      console.error('Error sending verification email:', err)
+    // Генерация JWT токена
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
     );
 
-    // НЕ даем JWT токен до подтверждения email
-    // Пользователь должен подтвердить email сначала
     res.json({
       success: true,
-      message: 'Регистрация успешна. Проверьте ваш email для подтверждения',
-      requiresVerification: true,
-      email: user.email,
+      message: 'Регистрация успешна',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error('Ошибка при регистрации:', error);

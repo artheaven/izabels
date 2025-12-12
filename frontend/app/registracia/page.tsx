@@ -44,11 +44,14 @@ export default function RegisterPage() {
         phone: formData.phone || undefined,
       });
 
-      // Сохраняем email для страницы верификации
-      localStorage.setItem('pending_verification_email', formData.email);
-      
-      // Перенаправляем на страницу подтверждения email
-      router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+      // Сохраняем токен
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        
+        // Перенаправляем в профиль
+        router.push('/profil');
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Грешка при регистрация');
     } finally {
