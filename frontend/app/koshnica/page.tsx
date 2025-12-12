@@ -539,6 +539,60 @@ export default function CartPage() {
                     <div className="mb-6">
                       <h3 className="font-semibold text-lg mb-3">Адрес на доставка</h3>
                       
+                      {/* Сохраненные адреса */}
+                      {isLoggedIn && savedAddresses.length > 0 && (
+                        <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                          <label className="block text-sm font-medium mb-3">
+                            Избери запазен адрес
+                          </label>
+                          <div className="space-y-2">
+                            {savedAddresses.map((address) => (
+                              <button
+                                key={address.id}
+                                type="button"
+                                onClick={() => handleSelectAddress(address.id)}
+                                className={`w-full text-left p-3 border rounded-lg transition ${
+                                  selectedAddressId === address.id
+                                    ? 'border-primary bg-white shadow-sm'
+                                    : 'border-gray-300 bg-white hover:border-primary/50'
+                                }`}
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <p className="font-medium text-sm">{address.name}</p>
+                                    <p className="text-sm text-gray-600">{address.address}</p>
+                                    {address.city && (
+                                      <p className="text-xs text-gray-500">{address.city}</p>
+                                    )}
+                                  </div>
+                                  {address.isDefault && (
+                                    <span className="ml-2 px-2 py-1 text-xs bg-pink-100 text-pink-800 rounded">
+                                      По подразбиране
+                                    </span>
+                                  )}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedAddressId(null);
+                              setFormData(prev => ({
+                                ...prev,
+                                deliveryStreet: '',
+                                deliveryNumber: '',
+                                apartment: '',
+                                floor: '',
+                              }));
+                            }}
+                            className="mt-3 text-sm text-primary hover:text-primary/80 font-medium"
+                          >
+                            + Използвай нов адрес
+                          </button>
+                        </div>
+                      )}
+                      
                       {/* Улица */}
                       <div className="mb-3">
                         <label htmlFor="deliveryStreet" className="block text-sm font-medium mb-1">
