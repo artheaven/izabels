@@ -55,7 +55,7 @@ export const getAllOrders = async (req: AuthRequest, res: Response) => {
               sku: true,
               images: true,
               translations: {
-                where: { language: 'bg' },
+                where: { lang: 'bg' },
                 select: { name: true },
               },
             },

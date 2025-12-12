@@ -45,7 +45,7 @@ export const register = async (req: Request, res: Response) => {
     });
 
     // Отправка welcome email (асинхронно, не блокируем ответ)
-    sendWelcomeEmail(user.email, user.firstName).catch(err =>
+    sendWelcomeEmail(user.email, user.firstName || 'Guest').catch(err =>
       console.error('Error sending welcome email:', err)
     );
 

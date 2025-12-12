@@ -35,7 +35,7 @@ export const getMyOrders = async (req: AuthRequest, res: Response) => {
               sku: true,
               images: true,
               translations: {
-                where: { language: 'bg' },
+                where: { lang: 'bg' },
                 select: { name: true },
               },
             },
@@ -93,7 +93,7 @@ export const getMyOrderById = async (req: AuthRequest, res: Response) => {
               sku: true,
               images: true,
               translations: {
-                where: { language: 'bg' },
+                where: { lang: 'bg' },
                 select: { name: true, description: true },
               },
             },
