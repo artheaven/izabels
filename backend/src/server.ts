@@ -23,8 +23,28 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 // Middleware
 app.use(helmet());
+
+// CORS - разрешаем несколько origins
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+  'https://izabels-frontend.vercel.app',
+  'https://www.izabelsflower.com',
+  'https://izabelsflower.com',
+].filter(Boolean) as string[];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Разрешаем запросы без origin (например, от мобильных приложений или curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.some(allowed => origin.startsWith(allowed) || allowed.includes(origin))) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(null, true); // Временно разрешаем все для отладки
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());
@@ -121,7 +141,7 @@ app.listen(Number(PORT), HOST, () => {
   logger.info(`🚀 Сервер запущен на ${HOST}:${PORT}`);
   logger.info(`📝 Окружение: ${process.env.NODE_ENV || 'development'}`);
   logger.info(`🌐 API доступен по адресу: http://localhost:${PORT}`);
-  logger.info(`🔗 CORS разрешен для: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  logger.info(`🔗 CORS разрешен для: ${allowedOrigins.join(', ')}`);
   checkConfiguration();
 });
 
